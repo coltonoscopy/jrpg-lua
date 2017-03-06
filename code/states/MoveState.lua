@@ -41,6 +41,16 @@ function MoveState:Enter(data)
     self.mPixelX = self.mEntity.mX
     self.mPixelY = self.mEntity.mY
     self.mTween = Tween:Create(0, self.mTileWidth, self.mMoveSpeed)
+
+    local targetX = self.mEntity.mTileX + data.x
+    local targetY = self.mEntity.mTileY + data.y
+
+    if self.mMap:IsBlocked(1, targetX, targetY) then
+        self.mMoveX = 0
+        self.mMoveY = 0
+        self.mEntity:SetFrame(self.mAnim:Frame())
+        self.mController:Change('wait')
+    end
 end
 
 function MoveState:Exit()
