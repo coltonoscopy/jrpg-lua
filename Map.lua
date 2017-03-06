@@ -24,6 +24,7 @@ function Map:Create(mapDef)
         mTiles = layer.data,
         mTileWidth = mapDef.tilesets[1].tilewidth,
         mTileHeight = mapDef.tilesets[1].tileheight,
+        mTriggers = {},
 
         mSpritesheet = LoadSpritesheet(mapDef.tilesets[1].image,
             mapDef.tilesets[1].tilewidth, mapDef.tilesets[1].tileheight),
@@ -65,8 +66,26 @@ end
 function Map:GetTile(x, y, layer)
     local layer = layer or 1
     local tiles = self.mMapDef.layers[layer].data
+
+    return tiles[self:CoordToIndex(x, y)]
+end
+
+function Map:CoordToIndex(x, y)
     x = x + 1
-    return tiles[x + y * self.mWidth]
+
+    return x + y * self.mWidth
+end
+
+function Map:GetTrigger(layer, x, y)
+    -- Gets the triggers on the same layer as the entity
+    local triggers = self.mTriggers[layer]
+
+    if not triggers then
+        return
+    end
+
+    local index = self:CoordToIndex(x, y)
+    return triggers[index]
 end
 
 function Map:IsBlocked(layer, tileX, tileY)
@@ -99,7 +118,6 @@ function Map:RenderLayer(layer)
 
             -- first layer
             if tile > 0 then
-                print(tile)
                 local activeFrame = self.mSpritesheet[tile]
                 love.graphics.draw(self.mSpritesheet['sheet'], activeFrame,
                     self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,

@@ -1,9 +1,11 @@
 -- require("maps/larger_map")
 require('maps/small_room')
 
+require('Actions')
 require('Animation')
 require('Entity')
-require("Map")
+require('Map')
+require('Trigger')
 
 require('StateMachine')
 require('code/states/MoveState')
@@ -77,7 +79,24 @@ function Teleport(entity, map)
     entity.mY = y
 end
 
-Teleport(gHero.mEntity, gMap)
+gUpDoorTeleport = Actions.Teleport(gMap, 11, 3)
+gDownDoorTeleport = Actions.Teleport(gMap, 10, 11)
+gUpDoorTeleport(nil, gHero.mEntity)
+
+gTriggerTop = Trigger:Create {
+    OnEnter = gDownDoorTeleport
+}
+
+gTriggerBot = Trigger:Create {
+    OnEnter = gUpDoorTeleport
+}
+
+gMap.mTriggers = {
+    {
+        [gMap:CoordToIndex(10, 12)] = gTriggerBot,
+        [gMap:CoordToIndex(11, 2)] = gTriggerTop
+    }
+}
 
 function love.update(dt)
     gMap.mCamX = math.floor(gHero.mEntity.mX - virtualWidth / 2 + gHero.mEntity.mWidth / 2)
@@ -90,6 +109,10 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
+
+    if key == 'space' then
+        gUpDoorTeleport(nil, gHero.mEntity)
+    end
 end
 
 function love.draw()
@@ -100,6 +123,7 @@ function love.draw()
         local layerCount = gMap:LayerCount()
         for i = 1, layerCount do
             gMap:RenderLayer(i)
+
             if i == gHero.mEntity.mLayer then
                 love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
                     gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
