@@ -36,3 +36,7 @@ function Character:Create(def, map)
 
     return this
 end
+
+function Character:Render()
+    self.mEntity:Render()
+end

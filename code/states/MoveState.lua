@@ -63,12 +63,15 @@ function MoveState:Exit()
                                              self.mEntity.mTileX,
                                              self.mEntity.mTileY)
         if trigger then
-            trigger:OnExit(self.mEntity)
+            trigger:OnEnter(self.mEntity, x, y, layer)
         end
     end
 
-    self.mEntity.mTileX = self.mEntity.mTileX + self.mMoveX
-    self.mEntity.mTileY = self.mEntity.mTileY + self.mMoveY
+    self.mEntity:SetTilePos(
+        self.mEntity.mTileX + self.mMoveX,
+        self.mEntity.mTileY + self.mMoveY,
+        self.mEntity.mLayer,
+        self.mMap)
     Teleport(self.mEntity, self.mMap)
 
     local trigger = self.mMap:GetTrigger(self.mEntity.mLayer,

@@ -34,10 +34,19 @@ function Teleport(entity, map)
     entity.mY = y
 end
 
-local gMap = Map:Create(CreateMap1())
+local mapDef = CreateMap1()
+mapDef.on_wake = {
+    {
+        id = 'AddNPC',
+        params = {{def = 'strolling_npc', x = 11, y = 5}}
+    },
+    {
+        id = 'AddNPC',
+        params = {{def = 'standing_npc', x = 4, y = 5}}
+    }
+}
+local gMap = Map:Create(mapDef)
 gHero = Character:Create(gCharacters.hero, gMap)
-gNPC = Character:Create(gCharacters.strolling_npc, gMap)
-Actions.Teleport(gMap, 11, 5)(nil, gNPC.mEntity)
 
 function love.load()
     love.window.setFullscreen(true)
@@ -80,7 +89,7 @@ end
 
 gUpDoorTeleport = Actions.Teleport(gMap, 11, 3)
 gDownDoorTeleport = Actions.Teleport(gMap, 10, 11)
-gUpDoorTeleport(nil, gHero.mEntity)
+gHero.mEntity:SetTilePos(11, 3, 1, gMap)
 
 gTriggerTop = Trigger:Create {
     OnEnter = gDownDoorTeleport
@@ -102,7 +111,10 @@ function love.update(dt)
     gMap.mCamY = math.floor(gHero.mEntity.mY - virtualHeight / 2 + gHero.mEntity.mHeight / 2)
 
     gHero.mController:Update(dt)
-    gNPC.mController:Update(dt)
+
+    for k, v in ipairs(gMap.mNPCs) do
+        v.mController:Update(dt)
+    end
 end
 
 function love.keypressed(key)
@@ -127,17 +139,12 @@ function love.draw()
         love.graphics.clear()
         local layerCount = gMap:LayerCount()
         for i = 1, layerCount do
-            gMap:RenderLayer(i)
-
+            local heroEntity = nil
             if i == gHero.mEntity.mLayer then
-                love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
-                    gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
+                heroEntity = gHero.mEntity
             end
 
-            if i == gNPC.mEntity.mLayer then
-                love.graphics.draw(gNPC.mEntity.mSpritesheet['sheet'], gNPC.mEntity.mFrame,
-                    gNPC.mEntity.mX, gNPC.mEntity.mY, 0, 1, 1)
-            end
+            gMap:RenderLayer(i, heroEntity)
         end
     love.graphics.setCanvas()
 

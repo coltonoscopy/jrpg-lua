@@ -25,6 +25,8 @@ function Map:Create(mapDef)
         mTileWidth = mapDef.tilesets[1].tilewidth,
         mTileHeight = mapDef.tilesets[1].tileheight,
         mTriggers = {},
+        mEntities = {},
+        mNPCs = {},
 
         mSpritesheet = LoadSpritesheet(mapDef.tilesets[1].image,
             mapDef.tilesets[1].tilewidth, mapDef.tilesets[1].tileheight),
@@ -47,6 +49,12 @@ function Map:Create(mapDef)
 
     assert(this.mBlockingTile)
     setmetatable(this, self)
+
+    for _, v in ipairs(mapDef.on_wake or {}) do
+        local action = Actions[v.id]
+        action(this, unpack(v.params))()
+    end
+
     return this
 end
 
@@ -76,6 +84,37 @@ function Map:CoordToIndex(x, y)
     return x + y * self.mWidth
 end
 
+function Map:GetEntity(x, y, layer)
+    if not self.mEntities[layer] then
+        return nil
+    end
+    local index = self:CoordToIndex(x, y)
+    return self.mEntities[layer][index]
+end
+
+function Map:AddEntity(entity)
+    -- add the layer if it doesn't exist
+    if not self.mEntities[entity.mLayer] then
+        self.mEntities[entity.mLayer] = {}
+    end
+
+    local layer = self.mEntities[entity.mLayer]
+    local index = self:CoordToIndex(entity.mTileX, entity.mTileY)
+
+    assert(layer[index] == entity or layer[index] == nil)
+    layer[index] = entity
+end
+
+function Map:RemoveEntity(entity)
+    -- the layer should exist!
+    assert(self.mEntities[entity.mLayer])
+    local layer = self.mEntities[entity.mLayer]
+    local index = self:CoordToIndex(entity.mTileX, entity.mTileY)
+    -- the entity should be at the position
+    assert(entity == layer[index])
+    layer[index] = nil
+end
+
 function Map:GetTrigger(layer, x, y)
     -- Gets the triggers on the same layer as the entity
     local triggers = self.mTriggers[layer]
@@ -91,14 +130,16 @@ end
 function Map:IsBlocked(layer, tileX, tileY)
     -- collision layer should always be 1 above the official layer
     local tile = self:GetTile(tileX, tileY, layer + 2)
-    return tile == self.mBlockingTile
+    local entity = self:GetEntity(tileX, tileY, layer)
+
+    return tile == self.mBlockingTile or entity ~= nil
 end
 
 function Map:Render()
     self:RenderLayer(1)
 end
 
-function Map:RenderLayer(layer)
+function Map:RenderLayer(layer, hero)
     -- Our maps layers are made of 3 sections
     -- We want the index to point to the base section of a given layer
     local layerIndex = (layer * 3) - 2
@@ -133,6 +174,18 @@ function Map:RenderLayer(layer)
                     self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
                     0, 1, 1)
             end
+        end
+
+        local entLayer = self.mEntities[layer] or {}
+        local drawList = {hero}
+
+        for _, j in pairs(entLayer) do
+            table.insert(drawList, j)
+        end
+
+        table.sort(drawList, function(a, b) return a.mTileY < b.mTileY end)
+        for _, ent in ipairs(drawList) do
+            ent:Render()
         end
     end
 end

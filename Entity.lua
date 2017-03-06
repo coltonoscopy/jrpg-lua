@@ -26,3 +26,29 @@ end
 function Entity:SetFrame(frame)
     self.mFrame = self.mSpritesheet[frame]
 end
+
+function Entity:SetTilePos(x, y, layer, map)
+    -- remove from current tile
+    if map:GetEntity(self.mTileX, self.mTileY, self.mLayer) == self then
+        map:RemoveEntity(self)
+    end
+
+    -- check target tile
+    if map:GetEntity(x, y, layer, map) ~= nil then
+        assert(false) -- there's something in the target position!
+    end
+
+    self.mTileX = x or self.mTileX
+    self.mTileY = y or self.mTileY
+    self.mLayer = layer or self.mLayer
+
+    map:AddEntity(self)
+    local x, y = map:GetTileFoot(self.mTileX, self.mTileY)
+    self.mX = x
+    self.mY = y
+end
+
+function Entity:Render()
+    love.graphics.draw(self.mSpritesheet['sheet'], self.mFrame,
+        self.mX, self.mY, 0, 1, 1)
+end
