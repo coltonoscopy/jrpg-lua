@@ -42,6 +42,8 @@ function MoveState:Enter(data)
     self.mAnim:SetFrames(frames)
     self.mMoveX = data.x
     self.mMoveY = data.y
+    local pixelX = self.mEntity.mX
+    local pixelY = self.mEntity.mY
     self.mPixelX = self.mEntity.mX
     self.mPixelY = self.mEntity.mY
     self.mTween = Tween:Create(0, self.mTileWidth, self.mMoveSpeed)
@@ -55,30 +57,31 @@ function MoveState:Enter(data)
         self.mEntity:SetFrame(self.mAnim:Frame())
         self.mController:Change(self.mCharacter.mDefaultState)
     end
-end
 
-function MoveState:Exit()
     if self.mMoveX ~= 0 or self.mMoveY ~= 0 then
         local trigger = self.mMap:GetTrigger(self.mEntity.mLayer,
                                              self.mEntity.mTileX,
                                              self.mEntity.mTileY)
         if trigger then
-            trigger:OnEnter(self.mEntity, x, y, layer)
+            trigger:OnExit(self.mEntity)
         end
     end
 
-    self.mEntity:SetTilePos(
-        self.mEntity.mTileX + self.mMoveX,
-        self.mEntity.mTileY + self.mMoveY,
-        self.mEntity.mLayer,
-        self.mMap)
-    Teleport(self.mEntity, self.mMap)
+    self.mEntity:SetTilePos(self.mEntity.mTileX + self.mMoveX,
+                            self.mEntity.mTileY + self.mMoveY,
+                            self.mEntity.mLayer,
+                            self.mMap)
+    self.mEntity.mX = pixelX
+    self.mEntity.mY = pixelY
+end
 
+function MoveState:Exit()
     local trigger = self.mMap:GetTrigger(self.mEntity.mLayer,
                                          self.mEntity.mTileX,
                                          self.mEntity.mTileY)
+
     if trigger then
-        trigger:OnEnter(self.mEntity)
+        trigger:OnEnter(self.mEntity, x, y, layer)
     end
 end
 

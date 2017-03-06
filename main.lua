@@ -45,6 +45,18 @@ mapDef.on_wake = {
         params = {{def = 'standing_npc', x = 4, y = 5}}
     }
 }
+mapDef.actions = {
+    tele_south = {id = 'Teleport', params = {11, 3}},
+    tele_north = {id = 'Teleport', params = {10, 11}}
+}
+mapDef.trigger_types = {
+    north_door_trigger = {OnEnter = 'tele_south'},
+    south_door_trigger = {OnEnter = 'tele_north'}
+}
+mapDef.triggers = {
+    { trigger = 'north_door_trigger', x = 11, y = 2 },
+    { trigger = 'south_door_trigger', x = 10, y = 12 }
+}
 local gMap = Map:Create(mapDef)
 gHero = Character:Create(gCharacters.hero, gMap)
 

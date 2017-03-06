@@ -48,7 +48,47 @@ function Map:Create(mapDef)
     end
 
     assert(this.mBlockingTile)
+
+    -- create the actions from the def
+    this.mActions = {}
+    for name, def in pairs(mapDef.actions or {}) do
+        -- look up the action and create the action-function
+        -- the action takes in the map as the first param
+        assert(Actions[def.id])
+        local action = Actions[def.id](this, unpack(def.params))
+        this.mActions[name] = action
+    end
+
+    -- create the trigger types from the def
+    this.mTriggerTypes = {}
+    for k, v in pairs(mapDef.trigger_types or {}) do
+        local triggerParams = {}
+        for callback, action in pairs(v) do
+            print(callback, action)
+            triggerParams[callback] = this.mActions[action]
+            assert(triggerParams[callback])
+        end
+        this.mTriggerTypes[k] = Trigger:Create(triggerParams)
+    end
+
     setmetatable(this, self)
+
+    -- place any triggers on the map
+    this.mTriggers = {}
+    for k, v in ipairs(mapDef.triggers) do
+        local x = v.x
+        local y = v.y
+        local layer = v.layer or 1
+
+        if not this.mTriggers[layer] then
+            this.mTriggers[layer] = {}
+        end
+
+        local targetLayer = this.mTriggers[layer]
+        local trigger = this.mTriggerTypes[v.trigger]
+        assert(trigger)
+        targetLayer[this:CoordToIndex(x, y)] = trigger
+    end
 
     for _, v in ipairs(mapDef.on_wake or {}) do
         local action = Actions[v.id]
