@@ -69,10 +69,18 @@ function Map:Render()
     for j = tileTop, tileBottom do
         for i = tileLeft, tileRight do
             local tile = self:GetTile(i, j)
-            local activeFrame = self.mSpritesheet[tile]
-            love.graphics.draw(self.mSpritesheet['sheet'], activeFrame,
-                self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
-                0, 1, 1)
+
+            if tile ~= nil then
+                local activeFrame = self.mSpritesheet[tile]
+                love.graphics.draw(self.mSpritesheet['sheet'], activeFrame,
+                    self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
+                    0, 1, 1)
+            end
         end
     end
+end
+
+function Map:Goto(x, y)
+    self.mCamX = math.floor(x - virtualWidth / 2)
+    self.mCamY = math.floor(y - virtualHeight / 2)
 end

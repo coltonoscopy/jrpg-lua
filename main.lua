@@ -28,6 +28,8 @@ function love.load()
     font = love.graphics.newFont("fonts/Altima.ttf", 16)
     font:setFilter("nearest", "nearest")
     love.graphics.setFont(font)
+
+    gMap:Goto(1984, 832)
 end
 
 function love.update()
@@ -42,6 +44,8 @@ function love.update()
     elseif love.keyboard.isDown('right') then
         gMap.mCamX = gMap.mCamX + 1
     end
+
+    print("X: %d, Y: %d", gMap.mCamX, gMap.mCamY)
 end
 
 function love.keypressed(key)
@@ -54,6 +58,7 @@ function love.draw()
     love.graphics.translate(-gMap.mCamX, -gMap.mCamY)
 
     love.graphics.setCanvas(canvas)
+        love.graphics.clear()
         gMap:Render()
     love.graphics.setCanvas()
 
