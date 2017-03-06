@@ -3,6 +3,11 @@ require('maps/small_room')
 require('Entity')
 require("Map")
 
+require('StateMachine')
+require('code/states/MoveState')
+require('code/states/WaitState')
+require('Tween')
+
 local displayWidth
 local displayHeight
 
@@ -43,11 +48,31 @@ local heroDef = {
     tileY       = 2
 }
 
-gHero = Entity:Create(heroDef)
+local gHero
+gHero = {
+    mEntity = Entity:Create(heroDef),
+    Init =
+    function(self)
+        self.mController = StateMachine:Create {
+            ['wait'] = function() return self.mWaitState end,
+            ['move'] = function() return self.mMoveState end
+        }
+        self.mWaitState = WaitState:Create(self, gMap)
+        self.mMoveState = MoveState:Create(self, gMap)
+        self.mController:Change('wait')
+    end
+}
+gHero:Init()
 
-function love.update()
-    gHero.mX, gHero.mY = gMap:GetTileFoot(gHero.mTileX, gHero.mTileY)
+function Teleport(entity, map)
+    local x, y = map:GetTileFoot(entity.mTileX, entity.mTileY)
+    entity.mX = x
+    entity.mY = y
+end
 
+Teleport(gHero.mEntity, gMap)
+
+function love.update(dt)
     if love.keyboard.isDown('up') then
         gMap.mCamY = gMap.mCamY - 1
     elseif love.keyboard.isDown('down') then
@@ -59,23 +84,13 @@ function love.update()
     elseif love.keyboard.isDown('right') then
         gMap.mCamX = gMap.mCamX + 1
     end
+
+    gHero.mController:Update(dt)
 end
 
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
-    end
-
-    if key == 'w' then
-        gHero.mTileY = gHero.mTileY - 1
-    elseif key == 's' then
-        gHero.mTileY = gHero.mTileY + 1
-    end
-
-    if key == 'a' then
-        gHero.mTileX = gHero.mTileX - 1
-    elseif key == 'd' then
-        gHero.mTileX = gHero.mTileX + 1
     end
 end
 
@@ -85,8 +100,8 @@ function love.draw()
     love.graphics.setCanvas(canvas)
         love.graphics.clear()
         gMap:Render()
-        love.graphics.draw(gHero.mSpritesheet['sheet'], gHero.mFrame,
-            gHero.mX, gHero.mY, 0, 1, 1)
+        love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
+            gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
     love.graphics.setCanvas()
 
     love.graphics.draw(canvas, gMap.mCamX, gMap.mCamY, 0,

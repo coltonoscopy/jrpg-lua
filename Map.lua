@@ -67,7 +67,6 @@ function Map:Render()
         self:PointToTile(self.mCamX + virtualWidth - 1, self.mCamY + virtualHeight - 1)
 
     for j = tileTop, tileBottom do
-        local counter = 1
         for i = tileLeft, tileRight do
             local tile
             if j >= 0 and i >= 0 then
@@ -80,9 +79,7 @@ function Map:Render()
                     self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
                     0, 1, 1)
             end
-            counter = counter + 1
         end
-        print(counter)
     end
 end
 
