@@ -95,3 +95,8 @@ function Map:GotoTile(x, y)
     self:Goto((x * self.mTileWidth) + self.mTileWidth / 2,
               (y * self.mTileHeight) + self.mTileHeight / 2)
 end
+
+function Map:GetTileFoot(x, y)
+    return self.mX + (x * self.mTileWidth),
+           self.mY + (y * self.mTileHeight) - self.mTileHeight / 2
+end

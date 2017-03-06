@@ -11,7 +11,7 @@ function LoadSpritesheet(atlas, tilewidth, tileheight)
         for x = 0, sheetWidth - 1 do
             spritesheet[sheetCounter] =
                 love.graphics.newQuad(x * tilewidth, y * tileheight, tilewidth,
-                tilewidth, imageFile:getDimensions())
+                tileheight, imageFile:getDimensions())
             sheetCounter = sheetCounter + 1
         end
     end

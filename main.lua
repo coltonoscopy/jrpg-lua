@@ -33,6 +33,14 @@ function love.load()
     gMap:GotoTile(5, 5)
 end
 
+local heroWidth = 16
+local heroHeight = 24
+gHeroSprites = LoadSpritesheet('graphics/walk_cycle.png', heroWidth, heroHeight)
+gHeroFrame = gHeroSprites[9]
+gHeroTileX = 10
+gHeroTileY = 2
+local x, y = gMap:GetTileFoot(gHeroTileX, gHeroTileY)
+
 function love.update()
     if love.keyboard.isDown('up') then
         gMap.mCamY = gMap.mCamY - 1
@@ -59,6 +67,7 @@ function love.draw()
     love.graphics.setCanvas(canvas)
         love.graphics.clear()
         gMap:Render()
+        love.graphics.draw(gHeroSprites['sheet'], gHeroFrame, x, y, 0, 1, 1)
     love.graphics.setCanvas()
 
     love.graphics.draw(canvas, gMap.mCamX, gMap.mCamY, 0,
