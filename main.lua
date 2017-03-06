@@ -3,14 +3,18 @@ require('maps/small_room')
 
 require('Actions')
 require('Animation')
+require('Character')
 require('Entity')
 require('Map')
 require('Trigger')
 
 require('StateMachine')
 require('code/states/MoveState')
+require('code/states/NPCStandState')
 require('code/states/WaitState')
 require('Tween')
+
+require('EntityDefs')
 
 local displayWidth
 local displayHeight
@@ -23,7 +27,16 @@ local canvas
 local font
 local tileSprite
 
+function Teleport(entity, map)
+    local x, y = map:GetTileFoot(entity.mTileX, entity.mTileY)
+    entity.mX = x
+    entity.mY = y
+end
+
 local gMap = Map:Create(CreateMap1())
+gHero = Character:Create(gCharacters.hero, gMap)
+gNPC = Character:Create(gCharacters.standing_npc, gMap)
+Actions.Teleport(gMap, 11, 5)(nil, gNPC.mEntity)
 
 function love.load()
     love.window.setFullscreen(true)
@@ -43,40 +56,25 @@ function love.load()
     gMap:GotoTile(5, 5)
 end
 
-local heroDef = {
-    texture     = 'graphics/walk_cycle.png',
-    width       = 16,
-    height      = 24,
-    startFrame  = 9,
-    tileX       = 11,
-    tileY       = 3,
-    layer       = 1
-}
+function GetFacedTileCoords(character)
+    -- Change the facing information into a tile offset
+    local xInc = 0
+    local yInc = 0
 
-local gHero
-gHero = {
-    mAnimUp = {1, 2, 3, 4},
-    mAnimRight = {5, 6, 7, 8},
-    mAnimDown = {9, 10, 11, 12},
-    mAnimLeft = {13, 14, 15, 16},
-    mEntity = Entity:Create(heroDef),
-    Init =
-    function(self)
-        self.mController = StateMachine:Create {
-            ['wait'] = function() return self.mWaitState end,
-            ['move'] = function() return self.mMoveState end
-        }
-        self.mWaitState = WaitState:Create(self, gMap)
-        self.mMoveState = MoveState:Create(self, gMap)
-        self.mController:Change('wait')
+    if character.mFacing == 'left' then
+        xInc = -1
+    elseif character.mFacing == 'right' then
+        xInc = 1
+    elseif character.mFacing == 'up' then
+        yInc = -1
+    elseif character.mFacing == 'down' then
+        yInc = 1
     end
-}
-gHero:Init()
 
-function Teleport(entity, map)
-    local x, y = map:GetTileFoot(entity.mTileX, entity.mTileY)
-    entity.mX = x
-    entity.mY = y
+    local x = character.mEntity.mTileX + xInc
+    local y = character.mEntity.mTileY + yInc
+
+    return x, y
 end
 
 gUpDoorTeleport = Actions.Teleport(gMap, 11, 3)
@@ -111,7 +109,12 @@ function love.keypressed(key)
     end
 
     if key == 'space' then
-        gUpDoorTeleport(nil, gHero.mEntity)
+        -- which way is the player facing?
+        local x, y = GetFacedTileCoords(gHero)
+        local trigger = gMap:GetTrigger(gHero.mEntity.mLayer, x, y)
+        if trigger then
+            trigger:OnUse(gHero)
+        end
     end
 end
 
@@ -127,6 +130,11 @@ function love.draw()
             if i == gHero.mEntity.mLayer then
                 love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
                     gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
+            end
+
+            if i == gNPC.mEntity.mLayer then
+                love.graphics.draw(gNPC.mEntity.mSpritesheet['sheet'], gNPC.mEntity.mFrame,
+                    gNPC.mEntity.mX, gNPC.mEntity.mY, 0, 1, 1)
             end
         end
     love.graphics.setCanvas()

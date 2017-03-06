@@ -28,9 +28,10 @@ function WaitState:Update(dt)
         if self.mFrameCount >= self.mFrameResetSpeed then
             self.mFrameCount = -1
             self.mEntity:SetFrame(self.mEntity.mStartFrame)
+            self.mCharacter.mFacing = 'down'
         end
     end
-    
+
     if love.keyboard.isDown('a') then
         self.mController:Change('move', {x = -1, y = 0})
     elseif love.keyboard.isDown('d') then
