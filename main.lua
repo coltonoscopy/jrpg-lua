@@ -39,9 +39,11 @@ gHeroSprites = LoadSpritesheet('graphics/walk_cycle.png', heroWidth, heroHeight)
 gHeroFrame = gHeroSprites[9]
 gHeroTileX = 10
 gHeroTileY = 2
-local x, y = gMap:GetTileFoot(gHeroTileX, gHeroTileY)
+local x, y
 
 function love.update()
+    x, y = gMap:GetTileFoot(gHeroTileX, gHeroTileY)
+
     if love.keyboard.isDown('up') then
         gMap.mCamY = gMap.mCamY - 1
     elseif love.keyboard.isDown('down') then
@@ -58,6 +60,18 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
+    end
+
+    if key == 'w' then
+        gHeroTileY = gHeroTileY - 1
+    elseif key == 's' then
+        gHeroTileY = gHeroTileY + 1
+    end
+
+    if key == 'a' then
+        gHeroTileX = gHeroTileX - 1
+    elseif key == 'd' then
+        gHeroTileX = gHeroTileX + 1
     end
 end
 
