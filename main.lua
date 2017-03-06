@@ -1,5 +1,6 @@
 -- require("maps/larger_map")
 require('maps/small_room')
+require('Entity')
 require("Map")
 
 local displayWidth
@@ -33,16 +34,19 @@ function love.load()
     gMap:GotoTile(5, 5)
 end
 
-local heroWidth = 16
-local heroHeight = 24
-gHeroSprites = LoadSpritesheet('graphics/walk_cycle.png', heroWidth, heroHeight)
-gHeroFrame = gHeroSprites[9]
-gHeroTileX = 10
-gHeroTileY = 2
-local x, y
+local heroDef = {
+    texture     = 'graphics/walk_cycle.png',
+    width       = 16,
+    height      = 24,
+    startFrame  = 9,
+    tileX       = 10,
+    tileY       = 2
+}
+
+gHero = Entity:Create(heroDef)
 
 function love.update()
-    x, y = gMap:GetTileFoot(gHeroTileX, gHeroTileY)
+    gHero.mX, gHero.mY = gMap:GetTileFoot(gHero.mTileX, gHero.mTileY)
 
     if love.keyboard.isDown('up') then
         gMap.mCamY = gMap.mCamY - 1
@@ -63,15 +67,15 @@ function love.keypressed(key)
     end
 
     if key == 'w' then
-        gHeroTileY = gHeroTileY - 1
+        gHero.mTileY = gHero.mTileY - 1
     elseif key == 's' then
-        gHeroTileY = gHeroTileY + 1
+        gHero.mTileY = gHero.mTileY + 1
     end
 
     if key == 'a' then
-        gHeroTileX = gHeroTileX - 1
+        gHero.mTileX = gHero.mTileX - 1
     elseif key == 'd' then
-        gHeroTileX = gHeroTileX + 1
+        gHero.mTileX = gHero.mTileX + 1
     end
 end
 
@@ -81,7 +85,8 @@ function love.draw()
     love.graphics.setCanvas(canvas)
         love.graphics.clear()
         gMap:Render()
-        love.graphics.draw(gHeroSprites['sheet'], gHeroFrame, x, y, 0, 1, 1)
+        love.graphics.draw(gHero.mSpritesheet['sheet'], gHero.mFrame,
+            gHero.mX, gHero.mY, 0, 1, 1)
     love.graphics.setCanvas()
 
     love.graphics.draw(canvas, gMap.mCamX, gMap.mCamY, 0,
