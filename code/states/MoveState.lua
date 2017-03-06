@@ -53,7 +53,7 @@ function MoveState:Enter(data)
         self.mMoveX = 0
         self.mMoveY = 0
         self.mEntity:SetFrame(self.mAnim:Frame())
-        self.mController:Change('wait')
+        self.mController:Change(self.mCharacter.mDefaultState)
     end
 end
 
@@ -93,6 +93,6 @@ function MoveState:Update(dt)
     self.mEntity.mY = y
 
     if self.mTween:IsFinished() then
-        self.mController:Change('wait')
+        self.mController:Change(self.mCharacter.mDefaultState)
     end
 end

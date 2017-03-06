@@ -11,6 +11,7 @@ require('Trigger')
 require('StateMachine')
 require('code/states/MoveState')
 require('code/states/NPCStandState')
+require('code/states/PlanStrollState')
 require('code/states/WaitState')
 require('Tween')
 
@@ -35,7 +36,7 @@ end
 
 local gMap = Map:Create(CreateMap1())
 gHero = Character:Create(gCharacters.hero, gMap)
-gNPC = Character:Create(gCharacters.standing_npc, gMap)
+gNPC = Character:Create(gCharacters.strolling_npc, gMap)
 Actions.Teleport(gMap, 11, 5)(nil, gNPC.mEntity)
 
 function love.load()
@@ -101,6 +102,7 @@ function love.update(dt)
     gMap.mCamY = math.floor(gHero.mEntity.mY - virtualHeight / 2 + gHero.mEntity.mHeight / 2)
 
     gHero.mController:Update(dt)
+    gNPC.mController:Update(dt)
 end
 
 function love.keypressed(key)
