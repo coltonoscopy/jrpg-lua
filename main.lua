@@ -1,4 +1,5 @@
-require("maps/larger_map")
+-- require("maps/larger_map")
+require('maps/small_room')
 require("Map")
 
 local displayWidth
@@ -19,8 +20,8 @@ function love.load()
     displayWidth = love.graphics.getWidth()
     displayHeight = love.graphics.getHeight()
 
-    virtualWidth = displayWidth / 6
-    virtualHeight = displayHeight / 6
+    virtualWidth = displayWidth / 4
+    virtualHeight = displayHeight / 4
 
     canvas = love.graphics.newCanvas(virtualWidth, virtualHeight)
     canvas:setFilter("nearest", "nearest")
@@ -29,7 +30,7 @@ function love.load()
     font:setFilter("nearest", "nearest")
     love.graphics.setFont(font)
 
-    gMap:Goto(1984, 832)
+    gMap:GotoTile(5, 5)
 end
 
 function love.update()
@@ -44,8 +45,6 @@ function love.update()
     elseif love.keyboard.isDown('right') then
         gMap.mCamX = gMap.mCamX + 1
     end
-
-    print("X: %d, Y: %d", gMap.mCamX, gMap.mCamY)
 end
 
 function love.keypressed(key)

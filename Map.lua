@@ -45,8 +45,8 @@ function Map:PointToTile(x, y)
     x = math.max(self.mX, x)
     y = math.max(self.mY, y)
 
-    x = math.min(x, self.mWidthPixel)
-    y = math.min(y, self.mHeightPixel)
+    x = math.min(x, self.mWidthPixel - 1)
+    y = math.min(y, self.mHeightPixel - 1)
 
     local tileX = math.floor(x / self.mTileWidth)
     local tileY = math.floor(y / self.mTileHeight)
@@ -64,11 +64,15 @@ function Map:Render()
         self:PointToTile(self.mCamX, self.mCamY)
 
     local tileRight, tileBottom =
-        self:PointToTile(self.mCamX + virtualWidth, self.mCamY + virtualHeight)
+        self:PointToTile(self.mCamX + virtualWidth - 1, self.mCamY + virtualHeight - 1)
 
     for j = tileTop, tileBottom do
+        local counter = 1
         for i = tileLeft, tileRight do
-            local tile = self:GetTile(i, j)
+            local tile
+            if j >= 0 and i >= 0 then
+                tile = self:GetTile(i, j)
+            end
 
             if tile ~= nil then
                 local activeFrame = self.mSpritesheet[tile]
@@ -76,11 +80,18 @@ function Map:Render()
                     self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
                     0, 1, 1)
             end
+            counter = counter + 1
         end
+        print(counter)
     end
 end
 
 function Map:Goto(x, y)
     self.mCamX = math.floor(x - virtualWidth / 2)
     self.mCamY = math.floor(y - virtualHeight / 2)
+end
+
+function Map:GotoTile(x, y)
+    self:Goto((x * self.mTileWidth) + self.mTileWidth / 2,
+              (y * self.mTileHeight) + self.mTileHeight / 2)
 end
