@@ -71,11 +71,19 @@ end
 
 function Map:IsBlocked(layer, tileX, tileY)
     -- collision layer should always be 1 above the official layer
-    local tile = self:GetTile(tileX, tileY, layer + 1)
+    local tile = self:GetTile(tileX, tileY, layer + 2)
     return tile == self.mBlockingTile
 end
 
 function Map:Render()
+    self:RenderLayer(1)
+end
+
+function Map:RenderLayer(layer)
+    -- Our maps layers are made of 3 sections
+    -- We want the index to point to the base section of a given layer
+    local layerIndex = (layer * 3) - 2
+
     local tileLeft, tileTop =
         self:PointToTile(self.mCamX, self.mCamY)
 
@@ -86,10 +94,22 @@ function Map:Render()
         for i = tileLeft, tileRight do
             local tile
             if j >= 0 and i >= 0 then
-                tile = self:GetTile(i, j)
+                tile = self:GetTile(i, j, layerIndex)
             end
 
-            if tile ~= nil then
+            -- first layer
+            if tile > 0 then
+                print(tile)
+                local activeFrame = self.mSpritesheet[tile]
+                love.graphics.draw(self.mSpritesheet['sheet'], activeFrame,
+                    self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
+                    0, 1, 1)
+            end
+
+            -- second layer (decoration)
+            tile = self:GetTile(i, j, layerIndex + 1)
+
+            if tile > 0 then
                 local activeFrame = self.mSpritesheet[tile]
                 love.graphics.draw(self.mSpritesheet['sheet'], activeFrame,
                     self.mX + i * self.mTileWidth, self.mY + j * self.mTileHeight,
@@ -112,4 +132,10 @@ end
 function Map:GetTileFoot(x, y)
     return self.mX + (x * self.mTileWidth),
            self.mY + (y * self.mTileHeight) - self.mTileHeight / 2
+end
+
+function Map:LayerCount()
+    -- Number of layers should be a factor of 3
+    assert(#self.mMapDef.layers % 3 == 0)
+    return #self.mMapDef.layers / 3
 end

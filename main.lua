@@ -46,8 +46,9 @@ local heroDef = {
     width       = 16,
     height      = 24,
     startFrame  = 9,
-    tileX       = 10,
-    tileY       = 2
+    tileX       = 11,
+    tileY       = 3,
+    layer       = 1
 }
 
 local gHero
@@ -96,9 +97,14 @@ function love.draw()
 
     love.graphics.setCanvas(canvas)
         love.graphics.clear()
-        gMap:Render()
-        love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
-            gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
+        local layerCount = gMap:LayerCount()
+        for i = 1, layerCount do
+            gMap:RenderLayer(i)
+            if i == gHero.mEntity.mLayer then
+                love.graphics.draw(gHero.mEntity.mSpritesheet['sheet'], gHero.mEntity.mFrame,
+                    gHero.mEntity.mX, gHero.mEntity.mY, 0, 1, 1)
+            end
+        end
     love.graphics.setCanvas()
 
     love.graphics.draw(canvas, gMap.mCamX, gMap.mCamY, 0,

@@ -13,6 +13,7 @@ function Entity:Create(def)
         mWidth = def.width,
         mTileX = def.tileX,
         mTileY = def.tileY,
+        mLayer = def.layer,
         mStartFrame = def.startFrame
     }
 
