@@ -21,7 +21,6 @@ function MoveState:Create(character, map)
 end
 
 function MoveState:Enter(data)
-    print('move state entered!')
     self.mMoveX = data.x
     self.mMoveY = data.y
     self.mPixelX = self.mEntity.mX
@@ -33,7 +32,6 @@ function MoveState:Exit()
     self.mEntity.mTileX = self.mEntity.mTileX + self.mMoveX
     self.mEntity.mTileY = self.mEntity.mTileY + self.mMoveY
     Teleport(self.mEntity, self.mMap)
-    print('move state exited!')
 end
 
 function MoveState:Render() end

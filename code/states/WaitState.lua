@@ -22,7 +22,6 @@ function WaitState:Exit() end
 
 function WaitState:Update(dt)
     if love.keyboard.isDown('a') then
-        print('move left requested!')
         self.mController:Change('move', {x = -1, y = 0})
     elseif love.keyboard.isDown('d') then
         self.mController:Change('move', {x = 1, y = 0})

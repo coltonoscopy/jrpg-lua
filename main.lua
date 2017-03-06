@@ -73,17 +73,8 @@ end
 Teleport(gHero.mEntity, gMap)
 
 function love.update(dt)
-    if love.keyboard.isDown('up') then
-        gMap.mCamY = gMap.mCamY - 1
-    elseif love.keyboard.isDown('down') then
-        gMap.mCamY = gMap.mCamY + 1
-    end
-
-    if love.keyboard.isDown('left') then
-        gMap.mCamX = gMap.mCamX - 1
-    elseif love.keyboard.isDown('right') then
-        gMap.mCamX = gMap.mCamX + 1
-    end
+    gMap.mCamX = math.floor(gHero.mEntity.mX - virtualWidth / 2 + gHero.mEntity.mWidth / 2)
+    gMap.mCamY = math.floor(gHero.mEntity.mY - virtualHeight / 2 + gHero.mEntity.mHeight / 2)
 
     gHero.mController:Update(dt)
 end
