@@ -1,5 +1,7 @@
 -- require("maps/larger_map")
 require('maps/small_room')
+
+require('Animation')
 require('Entity')
 require("Map")
 
@@ -50,6 +52,10 @@ local heroDef = {
 
 local gHero
 gHero = {
+    mAnimUp = {1, 2, 3, 4},
+    mAnimRight = {5, 6, 7, 8},
+    mAnimDown = {9, 10, 11, 12},
+    mAnimLeft = {13, 14, 15, 16},
     mEntity = Entity:Create(heroDef),
     Init =
     function(self)

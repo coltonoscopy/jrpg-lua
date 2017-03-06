@@ -6,7 +6,9 @@ function WaitState:Create(character, map)
         mCharacter = character,
         mMap = map,
         mEntity = character.mEntity,
-        mController = character.mController
+        mController = character.mController,
+        mFrameResetSpeed = 0.05,
+        mFrameCount = 0
     }
 
     setmetatable(this, self)
@@ -14,13 +16,21 @@ function WaitState:Create(character, map)
 end
 
 function WaitState:Enter(data)
-    self.mEntity:SetFrame(self.mEntity.mStartFrame)
+    self.mFrameCount = 0
 end
 
 function WaitState:Render() end
 function WaitState:Exit() end
 
 function WaitState:Update(dt)
+    if self.mFrameCount ~= -1 then
+        self.mFrameCount = self.mFrameCount + dt
+        if self.mFrameCount >= self.mFrameResetSpeed then
+            self.mFrameCount = -1
+            self.mEntity:SetFrame(self.mEntity.mStartFrame)
+        end
+    end
+    
     if love.keyboard.isDown('a') then
         self.mController:Change('move', {x = -1, y = 0})
     elseif love.keyboard.isDown('d') then
