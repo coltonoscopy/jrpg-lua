@@ -50,5 +50,5 @@ end
 
 function Entity:Render()
     love.graphics.draw(self.mSpritesheet['sheet'], self.mFrame,
-        self.mX, self.mY, 0, 1, 1)
+        math.floor(self.mX + 0.5), math.floor(self.mY + 0.5), 0, 1, 1)
 end

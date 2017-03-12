@@ -14,7 +14,7 @@ function MoveState:Create(character, map)
         mMoveX = 0,
         mMoveY = 0,
         mTween = Tween:Create(0, 0, 1),
-        mMoveSpeed = 0.3
+        mMoveSpeed = 0.25
     }
     this.mAnim = Animation:Create({this.mEntity.mStartFrame})
 

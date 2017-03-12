@@ -17,12 +17,12 @@ require('Tween')
 
 require('EntityDefs')
 
+push = require 'push'
+virtualWidth = 384
+virtualHeight = 216
+
 local displayWidth
 local displayHeight
-
--- virtual resolution coords
-virtualWidth = nil
-virtualHeight = nil
 
 local canvas
 local font
@@ -61,21 +61,27 @@ local gMap = Map:Create(mapDef)
 gHero = Character:Create(gCharacters.hero, gMap)
 
 function love.load()
-    love.window.setFullscreen(true)
+    love.graphics.setDefaultFilter('nearest', 'nearest')
     displayWidth = love.graphics.getWidth()
     displayHeight = love.graphics.getHeight()
 
-    virtualWidth = displayWidth / 4
-    virtualHeight = displayHeight / 4
-
     canvas = love.graphics.newCanvas(virtualWidth, virtualHeight)
     canvas:setFilter("nearest", "nearest")
+
+    push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
+        fullscreen = true,
+        resizable = true
+    })
 
     font = love.graphics.newFont("fonts/Altima.ttf", 16)
     font:setFilter("nearest", "nearest")
     love.graphics.setFont(font)
 
     gMap:GotoTile(5, 5)
+end
+
+function love.resize(w, h)
+    push:resize(w, h)
 end
 
 function GetFacedTileCoords(character)
@@ -119,10 +125,10 @@ gMap.mTriggers = {
 }
 
 function love.update(dt)
-    gMap.mCamX = math.floor(gHero.mEntity.mX - virtualWidth / 2 + gHero.mEntity.mWidth / 2)
-    gMap.mCamY = math.floor(gHero.mEntity.mY - virtualHeight / 2 + gHero.mEntity.mHeight / 2)
-
     gHero.mController:Update(dt)
+
+    gMap.mCamX = math.floor(0.5 + gHero.mEntity.mX - virtualWidth / 2 + gHero.mEntity.mWidth / 2)
+    gMap.mCamY = math.floor(0.5 + gHero.mEntity.mY - virtualHeight / 2 + gHero.mEntity.mHeight / 2)
 
     for k, v in ipairs(gMap.mNPCs) do
         v.mController:Update(dt)
@@ -145,21 +151,17 @@ function love.keypressed(key)
 end
 
 function love.draw()
+    push:apply('start')
     love.graphics.translate(-gMap.mCamX, -gMap.mCamY)
-
-    love.graphics.setCanvas(canvas)
-        love.graphics.clear()
-        local layerCount = gMap:LayerCount()
-        for i = 1, layerCount do
-            local heroEntity = nil
-            if i == gHero.mEntity.mLayer then
-                heroEntity = gHero.mEntity
-            end
-
-            gMap:RenderLayer(i, heroEntity)
+    love.graphics.clear()
+    local layerCount = gMap:LayerCount()
+    for i = 1, layerCount do
+        local heroEntity = nil
+        if i == gHero.mEntity.mLayer then
+            heroEntity = gHero.mEntity
         end
-    love.graphics.setCanvas()
 
-    love.graphics.draw(canvas, gMap.mCamX, gMap.mCamY, 0,
-        displayWidth / virtualWidth)
+        gMap:RenderLayer(i, heroEntity)
+    end
+    push:apply('end')
 end
