@@ -25,6 +25,11 @@ function Panel:Create(params)
         end
     end
 
+    -- Fix up center UVs by moving them 0.5 texels in
+    local centerQuad = this.mSpritesheet[5]
+    x, y, w, h = centerQuad:getViewport()
+    centerQuad:setViewport(x + 0.5, y + 0.5, w - 1, h - 1)
+
     setmetatable(this, self)
     return this
 end
@@ -65,7 +70,7 @@ function Panel:Position(left, top, right, bottom)
 
     -- Scale the middle backing panel
     self.mTiles[5]:SetPosition(left + hSize - 1, top + hSize - 1)
-    self.mTiles[5]:SetScale(widthScale, heightScale)
+    self.mTiles[5]:SetScale(widthScale * 1.5, heightScale * 1.5)
 
     -- Hide corner tiles when scale is equal to zero
     if left - right == 0 or top - bottom == 0 then
@@ -73,6 +78,15 @@ function Panel:Position(left, top, right, bottom)
             v:SetScale(0, 0)
         end
     end
+end
+
+function Panel:CenterPosition(x, y, width, height)
+    local screenCenterX = virtualWidth / 2
+    local screenCenterY = virtualHeight / 2
+    local hWidth = width / 2
+    local hHeight = height / 2
+    return self:Position(screenCenterX - hWidth, screenCenterY - hHeight,
+                         screenCenterX + hWidth, screenCenterY + hHeight)
 end
 
 function Panel:Render()

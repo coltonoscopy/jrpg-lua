@@ -5,15 +5,11 @@ virtualWidth = 384
 virtualHeight = 216
 
 local gPanel = Panel:Create {
-    texture = 'graphics/simple_panel.png',
+    texture = 'graphics/gradient_panel.png',
     size = 3
 }
-local left = virtualWidth / 2 - 100
-local top = virtualHeight / 2
-local right = virtualWidth / 2 + 100
-local bottom = virtualHeight / 2 + 100
 
-gPanel:Position(left, top, right, bottom)
+gPanel:CenterPosition(0, 0, 128, 32)
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -32,30 +28,12 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
-    if key == 'up' then
-        top = top - 1
-        bottom = bottom - 1
-        gPanel:Position(left, top, right, bottom)
-    end
-    if key == 'down' then
-        top = top + 1
-        bottom = bottom + 1
-        gPanel:Position(left, top, right, bottom)
-    end
-    if key == 'left' then
-        left = left - 1
-        right = right - 1
-        gPanel:Position(left, top, right, bottom)
-    end
-    if key == 'right' then
-        left = left + 1
-        right = right + 1
-        gPanel:Position(left, top, right, bottom)
-    end
 end
 
 function love.draw()
     push:apply('start')
     gPanel:Render()
+    love.graphics.printf('Hello World', virtualWidth / 2 - 128, virtualHeight / 2 - 8,
+        virtualWidth / 2 + 64, 'center')
     push:apply('end')
 end
