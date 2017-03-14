@@ -5,28 +5,37 @@ push = require 'push'
 virtualWidth = 384
 virtualHeight = 216
 
-local textbox = Textbox:Create {
-    text = 'hello',
-    textScale = 2,
-    size = {
-        left = -100,
-        right = 100,
-        top = 32,
-        bottom = -32,
-    },
-    textbounds = {
-        left = 10,
-        right = -10,
-        top = -10,
-        bottom = 10
-    },
-    panelArgs = {
-        texture = 'graphics/gradient_panel.png',
-        size = 3
-    }
-}
+function CreateFixed(x, y, width, height, text)
+    local padding = 10
+    local textScale = 1.5
+    local panelTileSize = 3
+    local wrap = width - padding * 2
 
-gStart = false
+    return Textbox:Create {
+        wrap = wrap,
+        text = text,
+        textScale = textScale,
+        size = {
+            left = x - width / 2,
+            right = x + width / 2,
+            top = y - height / 2,
+            bottom = y + height / 2,
+        },
+        textbounds = {
+            left = padding,
+            right = -padding,
+            top = -padding,
+            bottom = padding
+        },
+        panelArgs = {
+            texture = 'graphics/gradient_panel.png',
+            size = 3
+        }
+    }
+end
+
+local text = 'hello, this is a test of a large text box'
+local textbox = CreateFixed(0, 0, 200, 80, text)
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -38,11 +47,7 @@ function love.load()
 end
 
 function love.update(dt)
-    if gStart then
-        if not textbox:IsDead() then
-            textbox:Update(dt)
-        end
-    end
+    textbox:Update(dt)
 end
 
 function love.resize(w, h)
@@ -55,21 +60,12 @@ function love.keypressed(key)
     end
 
     if key == 'space' then
-        gStart = true
         textbox:OnClick()
     end
 end
 
 function love.draw()
     push:apply('start')
-    if not gStart then
-        love.graphics.printf('Press space.', 0, virtualHeight / 2,
-            virtualWidth, 'center')
-        push:apply('end')
-        return
-    end
-    if not textbox:IsDead() then
-        textbox:Render()
-    end
+    textbox:Render()
     push:apply('end')
 end

@@ -13,6 +13,7 @@ function Textbox:Create(params)
         mSize = params.size,
         mBounds = params.textbounds,
         mAppearTween = Tween:Create(0, 1, 0.4, Tween.EaseOutCirc),
+        mWrap = params.wrap or -1
     }
 
     -- Calculate center point from mSize
@@ -31,18 +32,19 @@ function Textbox:Update(dt)
 end
 
 function Textbox:OnClick()
-    --
-    -- If the dialog is appearing or disappearing
-    -- ignore interaction
-    --
-    if not (self.mAppearTween:IsFinished()
-        and self.mAppearTween:Value() == 1) then
-            return
+    if self:IsClosed() then
+        self.mAppearTween = Tween:Create(0, 1, 0.4, Tween.EaseOutCirc)
+    elseif self:IsOpen() then
+        self.mAppearTween = Tween:Create(1, 0, 0.2, Tween.EaseInCirc)
     end
-    self.mAppearTween = Tween:Create(1, 0, 0.2, Tween.EaseInCirc)
 end
 
-function Textbox:IsDead()
+function Textbox:IsOpen()
+    return self.mAppearTween:IsFinished()
+        and self.mAppearTween:Value() == 1
+end
+
+function Textbox:IsClosed()
     return self.mAppearTween:IsFinished()
         and self.mAppearTween:Value() == 0
 end
@@ -59,14 +61,17 @@ function Textbox:Render()
 
     self.mPanel:Render()
 
-    local left = self.mX - (self.mWidth / 2 * scale)
-    local textLeft = left + (self.mBounds.left * scale)
-    local top = self.mY + (self.mHeight / 2 * scale)
-    local textTop = top - (self.mBounds.top * scale)
-
     local screenCenterX = virtualWidth / 2
     local screenCenterY = virtualHeight / 2
-    love.graphics.printf(self.mText, screenCenterX - (self.mWidth / 2) * scale + self.mBounds.left * scale,
-        screenCenterY - (self.mHeight / 2) * scale - self.mBounds.top * scale,
-        self.mWidth * scale, 'left', 0, self.mTextScale * scale, self.mTextScale * scale)
+
+    local left = self.mX + (virtualWidth / 2 - self.mWidth / 2 * scale)
+    local textLeft = left + (self.mBounds.left) * scale
+    local top = self.mY + (virtualHeight / 2 - self.mHeight / 2 * scale)
+    local textTop = top - (self.mBounds.top * scale)
+
+    -- avoid division by 0
+    if scale ~= 0 then
+        love.graphics.printf(self.mText, textLeft, textTop,
+            (self.mWrap / (self.mTextScale * scale)) * scale, 'left', 0, self.mTextScale * scale, self.mTextScale * scale)
+    end
 end
