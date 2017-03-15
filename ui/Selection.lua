@@ -31,21 +31,6 @@ function Selection:Create(params)
     this.mWidth = this:CalcWidth()
     this.mHeight = this:CalcHeight()
 
-    -- Input callback function for 'just pressed' functionality
-    table.insert(KEYPRESSED, function(key, code)
-        if key == 'up' then
-            this:MoveUp()
-        elseif key == 'down' then
-            this:MoveDown()
-        elseif key == 'left' then
-            this:MoveLeft()
-        elseif key == 'right' then
-            this:MoveRight()
-        elseif key == 'space' then
-            this:OnClick()
-        end
-    end)
-
     return this
 end
 
@@ -184,7 +169,17 @@ function Selection:SelectedItem()
 end
 
 function Selection:HandleInput()
-
+    if love.keyboard.wasPressed('up') then
+        self:MoveUp()
+    elseif love.keyboard.wasPressed('down') then
+        self:MoveDown()
+    elseif love.keyboard.wasPressed('left') then
+        self:MoveLeft()
+    elseif love.keyboard.wasPressed('right') then
+        self:MoveRight()
+    elseif love.keyboard.wasPressed('space') then
+        self:OnClick()
+    end
 end
 
 function Selection:RenderItem(x, y, item)

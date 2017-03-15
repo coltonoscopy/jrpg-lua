@@ -21,7 +21,8 @@ function Textbox:Create(params)
         mBounds = params.textbounds,
         mAppearTween = Tween:Create(0, 1, 0.4, Tween.EaseOutCirc),
         mWrap = params.wrap or -1,
-        mChildren = params.children or {}
+        mChildren = params.children or {},
+        mSelectionMenu = params.selectionMenu
     }
     this.mContinueMark:SetTexture(love.graphics.newImage('graphics/continue_caret.png'))
 

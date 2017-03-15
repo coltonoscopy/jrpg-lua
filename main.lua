@@ -1,5 +1,6 @@
 -- Callbacks for key pressed, in case we spread over multiple files
-KEYPRESSED = {}
+love.keyboard.keysPressed = {}
+love.keyboard.keysReleased = {}
 
 require 'ui/Panel'
 require 'ui/Selection'
@@ -32,6 +33,7 @@ function CreateFixed(x, y, width, height, text, params)
     params = params or {}
     local avatar = params.avatar
     local title = params.title
+    local choices = params.choices
 
     local padding = 10
     local textScale = 1.5
@@ -56,6 +58,16 @@ function CreateFixed(x, y, width, height, text, params)
             x = avatar:getWidth() / 2 + padding,
             y = avatar:getHeight() / 2
         })
+    end
+
+    local selectionMenu = nil
+    if choices then
+        -- options and callback
+        selectionMenu = Selection:Create {
+            data = choices.options,
+            OnSelection = choices.OnSelection
+        }
+        boundsBottom = boundsBottom - padding * 0.5
     end
 
     if title then
@@ -125,7 +137,8 @@ function CreateFixed(x, y, width, height, text, params)
             size = panelTileSize
         },
         children = children,
-        wrap = wrap
+        wrap = wrap,
+        selectionMenu = selectionMenu
     }
 end
 
@@ -143,8 +156,27 @@ gChoice = Selection:Create {
     end
 }
 
+function love.keyboard.wasPressed(key)
+    if (love.keyboard.keysPressed[key]) then
+        return true
+    else
+        return false
+    end
+end
+
+function love.keyboard.wasReleased(key)
+    if (love.keyboard.keysReleased[key]) then
+        return true
+    else
+        return false
+    end
+end
+
 function love.update(dt)
     -- textbox:Update(dt)
+    gChoice:HandleInput()
+    love.keyboard.keysPressed = {}
+    love.keyboard.keysReleased = {}
 end
 
 function love.resize(w, h)
@@ -152,9 +184,6 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
-    for _, fn in ipairs(KEYPRESSED) do
-        fn(key, unicode)
-    end
     if key == 'escape' then
         love.event.quit()
     end
@@ -162,6 +191,11 @@ function love.keypressed(key)
     -- if key == 'space' then
     --     textbox:OnClick()
     -- end
+    love.keyboard.keysPressed[key] = true
+end
+
+function love.keyreleased(key)
+    love.keyboard.keysReleased[key] = true
 end
 
 function love.draw()
