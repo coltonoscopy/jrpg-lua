@@ -15,7 +15,7 @@ love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 local width = virtualWidth - 4
 local height = 102
 local x = 0
-local y = height / 2
+local y = 0
 local text = 'Should I join your party?'
 local title = 'NPC:'
 local avatar = love.graphics.newImage('graphics/avatar.png')
@@ -139,14 +139,51 @@ function CreateFixed(x, y, width, height, text, params)
     }
 end
 
-local textbox = CreateFixed(x, y, width, height, text, {
+function CreateFitted(x, y, text, wrap, params)
+    local params = params or {}
+    local choices = params.choices
+    local title = params.title
+    local avatar = params.avatar
+
+    local padding = 10
+    local panelTileSize = 3
+    local textScale = 1.5
+
+    local scaledFont = love.graphics.newFont('fonts/04B_03__.TTF',
+        love.graphics.getFont():getHeight() * textScale)
+    local size = scaledFont:getWidth(text)
+    local width = size + padding * 2
+    local height = scaledFont:getHeight() + padding * 2
+
+    if choices then
+        -- options and callback
+        local selectionMenu = Selection:Create {
+            data = choices.options,
+            displayRows = #choices.options,
+            columns = 1
+        }
+        height = height + selectionMenu:GetHeight() + padding * 4
+        width = math.max(width, selectionMenu:GetWidth() + padding * 2)
+    end
+
+    if title then
+        height = height + scaledFont:getHeight() + padding
+        width = math.max(width, size + padding)
+    end
+
+    if avatar then
+        local avatarWidth = avatar:getWidth()
+        local avatarHeight = avatar:getHeight()
+        width = width + avatarWidth + padding
+        height = math.max(height, avatarHeight + padding)
+    end
+
+    return CreateFixed(x, y, width, height, text, params)
+end
+
+local textbox = CreateFitted(0, 0, text, 300, {
     title = title,
-    avatar = avatar,
-    choices = {
-        options = {'Yes', 'No'},
-        textScale = 1.5,
-        OnSelection = function(i) print('selected', i) end
-    }
+    avatar = avatar
 })
 
 gLastSelection = '?'
