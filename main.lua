@@ -1,4 +1,8 @@
+-- Callbacks for key pressed, in case we spread over multiple files
+KEYPRESSED = {}
+
 require 'ui/Panel'
+require 'ui/Selection'
 require 'ui/Textbox'
 push = require 'push'
 
@@ -10,7 +14,7 @@ love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 local width = virtualWidth - 4
 local height = 102
 local x = 0
-local y = -50
+local y = height / 2
 local text = [['A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear.']]
 local title = 'NPC:'
 local avatar = love.graphics.newImage('graphics/avatar.png')
@@ -127,8 +131,20 @@ end
 
 local textbox = CreateFixed(x, y, width, height, text, title, avatar)
 
+gLastSelection = '?'
+gChoice = Selection:Create {
+    data = {
+        'Yes',
+        'No'
+    },
+    cursor = 'graphics/cursor.png',
+    OnSelection = function(selectIndex)
+        gLastSelection = selectIndex
+    end
+}
+
 function love.update(dt)
-    textbox:Update(dt)
+    -- textbox:Update(dt)
 end
 
 function love.resize(w, h)
@@ -136,17 +152,23 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
+    for _, fn in ipairs(KEYPRESSED) do
+        fn(key, unicode)
+    end
     if key == 'escape' then
         love.event.quit()
     end
 
-    if key == 'space' then
-        textbox:OnClick()
-    end
+    -- if key == 'space' then
+    --     textbox:OnClick()
+    -- end
 end
 
 function love.draw()
     push:apply('start')
-    textbox:Render()
+    -- textbox:Render()
+    love.graphics.print('Last selection: ' .. tostring(gLastSelection),
+        virtualWidth / 2, virtualHeight / 2 + 50)
+    gChoice:Render()
     push:apply('end')
 end
