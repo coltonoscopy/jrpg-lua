@@ -5,6 +5,25 @@ push = require 'push'
 virtualWidth = 384
 virtualHeight = 216
 
+love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
+
+local width = virtualWidth - 4
+local height = 102
+local x = 0
+local y = -50
+local text = [['A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear.']]
+local title = 'NPC:'
+local avatar = love.graphics.newImage('graphics/avatar.png')
+
+function love.load()
+    love.graphics.setDefaultFilter('nearest', 'nearest')
+
+    push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
+        fullscreen = true,
+        resizable = true
+    })
+end
+
 function CreateFixed(x, y, width, height, text, params)
     params = params or {}
     local avatar = params.avatar
@@ -14,9 +33,10 @@ function CreateFixed(x, y, width, height, text, params)
     local textScale = 1.5
     local panelTileSize = 3
 
-    local wrap = width - padding
+    local wrap = width - padding * 2
     local boundsTop = padding
     local boundsLeft = padding
+    local boundsBottom = padding
 
     local children = {}
 
@@ -47,8 +67,42 @@ function CreateFixed(x, y, width, height, text, params)
         })
     end
 
+    -- Temp scaled font to get proper wrapping measurements
+    local scaledFont = love.graphics.newFont('fonts/04B_03__.TTF',
+        love.graphics.getFont():getHeight() * textScale)
+    local faceHeight = scaledFont:getHeight()
+    local textWidth, lines = scaledFont:getWrap(text, wrap)
+
+    for k, v in pairs(lines) do
+        print(k, v)
+    end
+
+    local boundsHeight = height - (boundsBottom + boundsTop)
+    local currentHeight = faceHeight
+
+    local lineCounter = 1
+    local chunks = {{lines[lineCounter]}}
+    while lineCounter <= #lines do
+        lineCounter = lineCounter + 1
+
+        -- If we're going to overflow
+        if (currentHeight + faceHeight) > boundsHeight then
+            -- make a new entry
+            currentHeight = 0
+            table.insert(chunks, {lines[lineCounter]})
+        else
+            table.insert(chunks[#chunks], lines[lineCounter])
+        end
+        currentHeight = currentHeight + faceHeight
+    end
+
+    -- Make each textbox be represented by one string.
+    for k, v in ipairs(chunks) do
+        chunks[k] = table.concat(v)
+    end
+
     return Textbox:Create {
-        text = text,
+        text = chunks,
         textScale = textScale,
         size = {
             left = x - width / 2,
@@ -71,20 +125,7 @@ function CreateFixed(x, y, width, height, text, params)
     }
 end
 
-local text = "It's dangerous to go alone! Take this."
-local textbox = CreateFixed(0, 0, virtualWidth-3, 100, text, {
-    title = 'Charles:',
-    avatar = love.graphics.newImage('graphics/avatar.png')
-})
-
-function love.load()
-    love.graphics.setDefaultFilter('nearest', 'nearest')
-
-    push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
-        fullscreen = true,
-        resizable = true
-    })
-end
+local textbox = CreateFixed(x, y, width, height, text, title, avatar)
 
 function love.update(dt)
     textbox:Update(dt)
