@@ -36,7 +36,8 @@ function Sprite:GetWidth()
     if self.mQuad == nil then
         return self.mTexture:getWidth()
     else
-        return self.mQuad:getWidth()
+        x, y, w, h = self.mQuad:getViewport()
+        return w
     end
 end
 
@@ -44,7 +45,8 @@ function Sprite:GetHeight()
     if self.mQuad == nil then
         return self.mTexture:getHeight()
     else
-        return self.mQuad:getHeight()
+        x, y, w, h = self.mQuad:getViewport()
+        return h
     end
 end
 

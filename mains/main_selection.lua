@@ -3,7 +3,6 @@ love.keyboard.keysPressed = {}
 love.keyboard.keysReleased = {}
 
 require 'ui/Panel'
-require 'ui/ProgressBar'
 require 'ui/Selection'
 require 'ui/Textbox'
 push = require 'push'
@@ -189,16 +188,6 @@ local textbox = CreateFitted(0, 0, text, 300, {
 
 gLastSelection = '?'
 
-local bar = ProgressBar:Create {
-    x = 0,
-    y = 0,
-    value = 1,
-    foreground = love.graphics.newImage('graphics/foreground.png'),
-    background = love.graphics.newImage('graphics/background.png')
-}
-
-local tween = Tween:Create(1, 0, 1)
-
 function love.keyboard.wasPressed(key)
     if (love.keyboard.keysPressed[key]) then
         return true
@@ -216,14 +205,10 @@ function love.keyboard.wasReleased(key)
 end
 
 function love.update(dt)
-    tween:Update(dt)
-    local v = tween:Value()
-    bar:SetValue(v)
-
-    if tween:IsFinished() then
-        tween = Tween:Create(v, math.abs(v - 1), 1)
+    if not textbox:IsDead() then
+        textbox:Update(dt)
+        textbox:HandleInput()
     end
-
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
 end
@@ -246,6 +231,8 @@ end
 
 function love.draw()
     push:apply('start')
-    bar:Render()
+    if not textbox:IsDead() then
+        textbox:Render()
+    end
     push:apply('end')
 end
