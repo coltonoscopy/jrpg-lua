@@ -5,14 +5,49 @@ push = require 'push'
 virtualWidth = 384
 virtualHeight = 216
 
-function CreateFixed(x, y, width, height, text)
+function CreateFixed(x, y, width, height, text, params)
+    params = params or {}
+    local avatar = params.avatar
+    local title = params.title
+
     local padding = 10
     local textScale = 1.5
     local panelTileSize = 3
-    local wrap = width - padding * 2
+
+    local wrap = width - padding
+    local boundsTop = padding
+    local boundsLeft = padding
+
+    local children = {}
+
+    if avatar then
+        boundsLeft = avatar:getWidth() + padding * 2
+        wrap = width - (boundsLeft) - padding
+        local sprite = Sprite:Create()
+        sprite:SetTexture(avatar)
+        table.insert(children,
+        {
+            type = 'sprite',
+            sprite = sprite,
+            x = avatar:getWidth() / 2 + padding,
+            y = avatar:getHeight() / 2
+        })
+    end
+
+    if title then
+        -- adjust the top
+        local size = love.graphics.getFont():getHeight()
+        boundsTop = size + padding * 2
+
+        table.insert(children,{
+            type = 'text',
+            text = title,
+            x = 0,
+            y = -size - padding
+        })
+    end
 
     return Textbox:Create {
-        wrap = wrap,
         text = text,
         textScale = textScale,
         size = {
@@ -22,20 +57,25 @@ function CreateFixed(x, y, width, height, text)
             bottom = y + height / 2,
         },
         textbounds = {
-            left = padding,
+            left = boundsLeft,
             right = -padding,
-            top = -padding,
+            top = -boundsTop,
             bottom = padding
         },
         panelArgs = {
             texture = 'graphics/gradient_panel.png',
-            size = 3
-        }
+            size = panelTileSize
+        },
+        children = children,
+        wrap = wrap
     }
 end
 
-local text = 'hello, this is a test of a large text box'
-local textbox = CreateFixed(0, 0, 200, 80, text)
+local text = "It's dangerous to go alone! Take this."
+local textbox = CreateFixed(0, 0, virtualWidth-3, 100, text, {
+    title = 'Charles:',
+    avatar = love.graphics.newImage('graphics/avatar.png')
+})
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')

@@ -41,11 +41,6 @@ function Panel:Position(left, top, right, bottom)
         v:SetScale(1, 1)
     end
 
-    left = left + virtualWidth / 2
-    top = top + virtualHeight / 2
-    right = right + virtualWidth / 2
-    bottom = bottom + virtualHeight / 2
-
     -- print(left, top, right, bottom)
 
     local hSize = math.floor(self.mTileSize / 2 + 0.5)
@@ -88,7 +83,6 @@ function Panel:Position(left, top, right, bottom)
 end
 
 function Panel:CenterPosition(x, y, width, height)
-    print(x, y, width, height)
     local hWidth = width / 2
     local hHeight = height / 2
     return self:Position(x - hWidth, y - hHeight,

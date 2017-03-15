@@ -13,7 +13,8 @@ function Textbox:Create(params)
         mSize = params.size,
         mBounds = params.textbounds,
         mAppearTween = Tween:Create(0, 1, 0.4, Tween.EaseOutCirc),
-        mWrap = params.wrap or -1
+        mWrap = params.wrap or -1,
+        mChildren = params.children or {}
     }
 
     -- Calculate center point from mSize
@@ -73,5 +74,23 @@ function Textbox:Render()
     if scale ~= 0 then
         love.graphics.printf(self.mText, textLeft, textTop,
             (self.mWrap / (self.mTextScale * scale)) * scale, 'left', 0, self.mTextScale * scale, self.mTextScale * scale)
+
+        for k, v in ipairs(self.mChildren) do
+            if v.type == 'text' then
+                love.graphics.printf(v.text,
+                    textLeft + (v.x * scale),
+                    textTop + (v.y * scale),
+                    (self.mWrap / (self.mTextScale * scale)) * scale,
+                    'left', 0, self.mTextScale * scale, self.mTextScale * scale)
+            elseif v.type == 'sprite' then
+                local spriteLeft = self.mX - (self.mWidth / 2 * scale)
+                local spriteTop = self.mY - (self.mHeight / 2 * scale)
+                v.sprite:SetPosition(
+                    spriteLeft + (v.x * scale) - v.sprite:GetWidth()/2 * scale,
+                    spriteTop + (v.y * scale) - v.sprite:GetHeight()/2 * scale)
+                v.sprite:SetScale(scale, scale)
+                v.sprite:Render()
+            end
+        end
     end
 end
