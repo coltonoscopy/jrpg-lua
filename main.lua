@@ -16,7 +16,7 @@ local width = virtualWidth - 4
 local height = 102
 local x = 0
 local y = height / 2
-local text = [['A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear.']]
+local text = 'Should I join your party?'
 local title = 'NPC:'
 local avatar = love.graphics.newImage('graphics/avatar.png')
 
@@ -65,7 +65,8 @@ function CreateFixed(x, y, width, height, text, params)
         -- options and callback
         selectionMenu = Selection:Create {
             data = choices.options,
-            OnSelection = choices.OnSelection
+            OnSelection = choices.OnSelection,
+            textScale = choices.textScale
         }
         boundsBottom = boundsBottom - padding * 0.5
     end
@@ -88,10 +89,6 @@ function CreateFixed(x, y, width, height, text, params)
         love.graphics.getFont():getHeight() * textScale)
     local faceHeight = scaledFont:getHeight()
     local textWidth, lines = scaledFont:getWrap(text, wrap)
-
-    for k, v in pairs(lines) do
-        print(k, v)
-    end
 
     local boundsHeight = height - (boundsBottom + boundsTop)
     local currentHeight = faceHeight
@@ -142,19 +139,17 @@ function CreateFixed(x, y, width, height, text, params)
     }
 end
 
-local textbox = CreateFixed(x, y, width, height, text, title, avatar)
+local textbox = CreateFixed(x, y, width, height, text, {
+    title = title,
+    avatar = avatar,
+    choices = {
+        options = {'Yes', 'No'},
+        textScale = 1.5,
+        OnSelection = function(i) print('selected', i) end
+    }
+})
 
 gLastSelection = '?'
-gChoice = Selection:Create {
-    data = {
-        'Yes',
-        'No'
-    },
-    cursor = 'graphics/cursor.png',
-    OnSelection = function(selectIndex)
-        gLastSelection = selectIndex
-    end
-}
 
 function love.keyboard.wasPressed(key)
     if (love.keyboard.keysPressed[key]) then
@@ -173,8 +168,10 @@ function love.keyboard.wasReleased(key)
 end
 
 function love.update(dt)
-    -- textbox:Update(dt)
-    gChoice:HandleInput()
+    if not textbox:IsDead() then
+        textbox:Update(dt)
+        textbox:HandleInput()
+    end
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
 end
@@ -188,9 +185,6 @@ function love.keypressed(key)
         love.event.quit()
     end
 
-    -- if key == 'space' then
-    --     textbox:OnClick()
-    -- end
     love.keyboard.keysPressed[key] = true
 end
 
@@ -200,9 +194,8 @@ end
 
 function love.draw()
     push:apply('start')
-    -- textbox:Render()
-    love.graphics.print('Last selection: ' .. tostring(gLastSelection),
-        virtualWidth / 2, virtualHeight / 2 + 50)
-    gChoice:Render()
+    if not textbox:IsDead() then
+        textbox:Render()
+    end
     push:apply('end')
 end

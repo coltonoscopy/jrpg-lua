@@ -2,6 +2,9 @@ Selection = {}
 Selection.__index = Selection
 
 function Selection:Create(params)
+    for k, v in pairs(params) do
+        print(k, v)
+    end
     local this = {
         mX = 0,
         mY = 0,
@@ -16,9 +19,11 @@ function Selection:Create(params)
         mMaxRows = params.rows or #params.data,
         mDisplayStart = 1,
         mScale = 1,
+        mTextScale = params.textScale or 1,
         OnSelection = params.OnSelection or function() end
     }
 
+    print('Text scale: ' .. this.mTextScale)
     this.mDisplayRows = params.displayRows or this.mMaxRows
 
     local cursorTex = love.graphics.newImage(params.cursor or 'graphics/cursor.png')
@@ -183,9 +188,7 @@ function Selection:HandleInput()
 end
 
 function Selection:RenderItem(x, y, item)
-    if not item then
-        love.graphics.print('--', x + virtualWidth / 2, y + virtualHeight / 2)
-    else
-        love.graphics.print(item, x + virtualWidth / 2, y + virtualHeight / 2)
-    end
+    print(self.mTextScale)
+    love.graphics.printf(item or '--', x + virtualWidth / 2, y + virtualHeight / 2,
+        self:CalcWidth(), 'left', 0, self.mTextScale * self.mScale, self.mTextScale * self.mScale)
 end

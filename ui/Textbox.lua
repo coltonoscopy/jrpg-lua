@@ -54,6 +54,10 @@ function Textbox:OnClick()
     end
 end
 
+function Textbox:IsDead()
+    return self:IsClosed()
+end
+
 function Textbox:IsOpen()
     return self.mAppearTween:IsFinished()
         and self.mAppearTween:Value() == 1
@@ -62,6 +66,16 @@ end
 function Textbox:IsClosed()
     return self.mAppearTween:IsFinished()
         and self.mAppearTween:Value() == 0
+end
+
+function Textbox:HandleInput()
+    if self.mSelectionMenu then
+        self.mSelectionMenu:HandleInput()
+    end
+
+    if love.keyboard.wasPressed('space') then
+        self:OnClick()
+    end
 end
 
 function Textbox:Render()
@@ -89,6 +103,16 @@ function Textbox:Render()
     if scale ~= 0 then
         love.graphics.printf(self.mChunks[self.mChunkIndex], textLeft, textTop,
             (self.mWrap / (self.mTextScale * scale)) * scale, 'left', 0, self.mTextScale * scale, self.mTextScale * scale)
+
+        if self.mSelectionMenu then
+            local menuX = textLeft - virtualWidth / 2
+            local menuY = bottom - self.mSelectionMenu:GetHeight() - self.mBounds.bottom * 2
+            menuY = menuY + self.mBounds.bottom
+            self.mSelectionMenu.mX = menuX
+            self.mSelectionMenu.mY = menuY
+            self.mSelectionMenu.mScale = scale
+            self.mSelectionMenu:Render()
+        end
 
         if self.mChunkIndex < #self.mChunks then
             -- There are more chunks to come
