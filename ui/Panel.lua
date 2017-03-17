@@ -30,6 +30,8 @@ function Panel:Create(params)
     x, y, w, h = centerQuad:getViewport()
     centerQuad:setViewport(x + 0.5, y + 0.5, w - 1, h - 1)
 
+    this.mCenterScale = this.mTileSize / (this.mTileSize - 1)
+
     setmetatable(this, self)
     return this
 end
@@ -43,36 +45,40 @@ function Panel:Position(left, top, right, bottom)
 
     -- print(left, top, right, bottom)
 
-    local hSize = math.floor(self.mTileSize / 2 + 0.5)
+    local hSize = self.mTileSize / 2
 
     -- align the corner tiles
-    self.mTiles[1]:SetPosition(left - hSize, top - hSize)
-    self.mTiles[3]:SetPosition(right - hSize, top - hSize)
-    self.mTiles[7]:SetPosition(left - hSize, bottom - hSize)
+    self.mTiles[1]:SetPosition(left + hSize, top + hSize)
+    self.mTiles[3]:SetPosition(right - hSize, top + hSize)
+    self.mTiles[7]:SetPosition(left + hSize, bottom - hSize)
     self.mTiles[9]:SetPosition(right - hSize, bottom - hSize)
 
     -- Calculate how much to scale the side tiles
-    local widthScale = ((math.abs(right - left)) - hSize - 1)
+    local widthScale = (math.abs(right - left) - (2 * self.mTileSize))
         / self.mTileSize
+    local centerX = (right + left) / 2
 
-    self.mTiles[2]:SetPosition(left + 1, top - hSize)
     self.mTiles[2]:SetScale(widthScale, 1)
+    self.mTiles[2]:SetPosition(centerX, top + hSize)
 
-    self.mTiles[8]:SetPosition(left + 1, bottom - hSize)
     self.mTiles[8]:SetScale(widthScale, 1)
+    self.mTiles[8]:SetPosition(centerX, bottom - hSize)
 
-    local heightScale = ((math.abs(bottom - top)) - hSize - 1)
+    local heightScale = (math.abs(top - bottom) - (2 * self.mTileSize))
         / self.mTileSize
+
+    local centerY = (bottom + top) / 2
 
     self.mTiles[4]:SetScale(1, heightScale)
-    self.mTiles[4]:SetPosition(left - hSize, top + 1)
+    self.mTiles[4]:SetPosition(left + hSize, centerY)
 
     self.mTiles[6]:SetScale(1, heightScale)
-    self.mTiles[6]:SetPosition(right - hSize, top + 1)
+    self.mTiles[6]:SetPosition(right - hSize, centerY)
 
     -- Scale the middle backing panel
-    self.mTiles[5]:SetPosition(left + hSize - 1, top + hSize - 1)
-    self.mTiles[5]:SetScale(widthScale * 1.5, heightScale * 1.5)
+    self.mTiles[5]:SetScale(widthScale * self.mCenterScale,
+                            heightScale * self.mCenterScale)
+    self.mTiles[5]:SetPosition(centerX, centerY)
 
     -- Hide corner tiles when scale is equal to zero
     if left - right == 0 or top - bottom == 0 then

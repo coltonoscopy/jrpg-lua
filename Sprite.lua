@@ -23,8 +23,8 @@ function Sprite:SetPosition(x, y)
         y = y + virtualHeight / 2 - self.mTexture:getHeight() * self.mScaleY / 2
     else
         quadx, quady, w, h = self.mQuad:getViewport()
-        x = x + virtualWidth / 2 - w * self.mScaleX / 2
-        y = y + virtualHeight / 2 - h * self.mScaleY / 2
+        x = x + virtualWidth / 2 - (w * self.mScaleX) / 2
+        y = y + virtualHeight / 2 - (h * self.mScaleY) / 2
     end
     self.mX = x
     self.mY = y
