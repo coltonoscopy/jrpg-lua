@@ -87,7 +87,9 @@ function Textbox:HandleInput()
     end
 end
 
-function Textbox:Enter() end
+function Textbox:Enter()
+    
+end
 
 function Textbox:Exit()
     if self.mDoClickCallback then

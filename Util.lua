@@ -1,5 +1,7 @@
-function LoadSpritesheet(atlas, tilewidth, tileheight)
+function LoadSpritesheet(atlas, tilewidth, tileheight, filter)
+    filter = filter or 'nearest'
     local imageFile = love.graphics.newImage(atlas)
+    imageFile:setFilter(filter, filter)
     local sheetWidth = imageFile:getWidth() / tilewidth
     local sheetHeight = imageFile:getHeight() / tileheight
 

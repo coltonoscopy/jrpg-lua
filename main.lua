@@ -10,6 +10,7 @@ require 'ui/Textbox'
 push = require 'push'
 
 require 'code/states/ExploreState'
+require 'code/states/FadeState'
 require 'code/states/WaitState'
 require 'code/states/MoveState'
 require 'code/states/NPCStandState'
@@ -30,6 +31,19 @@ virtualHeight = 216
 love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 
 local stack, mapDef, state
+local CreateBlock = function(stack)
+    return {
+        Enter = function() end,
+        Exit = function() end,
+        HandleInput = function(self)
+            stack:Pop()
+        end,
+        Render = function() end,
+        Update = function(self)
+            return false
+        end
+    }
+end
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -41,9 +55,15 @@ function love.load()
     mapDef.trigger_types = {}
     mapDef.triggers = {}
 
-    state = ExploreState:Create(nil, mapDef, Vector:Create(11, 3, 1))
+    state = ExploreState:Create(stack, mapDef, Vector:Create(11, 3, 1))
     stack:Push(state)
-    stack:PushFit(0, 0, "You're trapped in a small room.")
+    stack:Push(FadeState:Create(stack))
+    stack:Push(CreateBlock(stack))
+    stack:PushFit(0, 0, "Where am I?")
+    stack:Push(CreateBlock(stack))
+    stack:PushFit(0, 10, "My head hurts!")
+    stack:Push(CreateBlock(stack))
+    stack:PushFit(0, 20, "Uh...")
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
         fullscreen = false,

@@ -7,7 +7,7 @@ Panel.__index = Panel
 function Panel:Create(params)
     local this = {
         mTexture = params.texture,
-        mSpritesheet = LoadSpritesheet(params.texture, params.size, params.size),
+        mSpritesheet = LoadSpritesheet(params.texture, params.size, params.size, 'linear'),
         mTileSize = params.size,
         mTiles = {}, -- the sprites representing the border.
     }
