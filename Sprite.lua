@@ -18,8 +18,14 @@ function Sprite:Create()
 end
 
 function Sprite:SetPosition(x, y)
-    x = x + virtualWidth / 2
-    y = y + virtualHeight / 2
+    if self.mQuad == nil then
+        x = x + virtualWidth / 2 - self.mTexture:getWidth() * self.mScaleX / 2
+        y = y + virtualHeight / 2 - self.mTexture:getHeight() * self.mScaleY / 2
+    else
+        quadx, quady, w, h = self.mQuad:getViewport()
+        x = x + virtualWidth / 2 - w * self.mScaleX / 2
+        y = y + virtualHeight / 2 - h * self.mScaleY / 2
+    end
     self.mX = x
     self.mY = y
 end

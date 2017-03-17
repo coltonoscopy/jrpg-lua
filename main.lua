@@ -4,6 +4,7 @@ love.keyboard.keysReleased = {}
 
 require 'ui/Panel'
 require 'ui/ProgressBar'
+require 'ui/Scrollbar'
 require 'ui/Selection'
 require 'ui/Textbox'
 push = require 'push'
@@ -25,7 +26,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
-        fullscreen = true,
+        fullscreen = false,
         resizable = true
     })
 end
@@ -199,6 +200,22 @@ local bar = ProgressBar:Create {
 
 local tween = Tween:Create(1, 0, 1)
 
+local bar1 = Scrollbar:Create('graphics/scrollbar.png', 100)
+local bar2 = Scrollbar:Create('graphics/scrollbar.png', 200)
+local bar3 = Scrollbar:Create('graphics/scrollbar.png', 75)
+
+bar1:SetScrollCaretScale(0.5)
+bar1:SetNormalValue(0.5)
+bar1:SetPosition(-50, 0)
+
+bar2:SetScrollCaretScale(0.3)
+bar2:SetNormalValue(0)
+bar2:SetPosition(0, 0)
+
+bar3:SetScrollCaretScale(0.1)
+bar3:SetNormalValue(1)
+bar3:SetPosition(50, -0)
+
 function love.keyboard.wasPressed(key)
     if (love.keyboard.keysPressed[key]) then
         return true
@@ -216,14 +233,6 @@ function love.keyboard.wasReleased(key)
 end
 
 function love.update(dt)
-    tween:Update(dt)
-    local v = tween:Value()
-    bar:SetValue(v)
-
-    if tween:IsFinished() then
-        tween = Tween:Create(v, math.abs(v - 1), 1)
-    end
-
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
 end
@@ -246,6 +255,8 @@ end
 
 function love.draw()
     push:apply('start')
-    bar:Render()
+    bar1:Render()
+    bar2:Render()
+    bar3:Render()
     push:apply('end')
 end
