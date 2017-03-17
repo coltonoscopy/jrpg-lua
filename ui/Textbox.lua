@@ -11,6 +11,8 @@ function Textbox:Create(params)
     end
 
     local this = {
+        mStack = params.stack,
+        mDoClickCallback = false,
         mChunks = params.text,
         mChunkIndex = 1,
         mContinueMark = Sprite:Create(),
@@ -40,9 +42,16 @@ end
 function Textbox:Update(dt)
     self.mTime = self.mTime + dt
     self.mAppearTween:Update(dt)
+    if self:IsDead() then
+        self.mStack:Pop()
+    end
+    return true
 end
 
 function Textbox:OnClick()
+    if self.mSelectionMenu then
+        self.mDoClickCallback = true
+    end
     if self.mChunkIndex >= #self.mChunks then
         if not (self.mAppearTween:IsFinished()
             and self.mAppearTween:Value() == 1) then
@@ -75,6 +84,14 @@ function Textbox:HandleInput()
 
     if love.keyboard.wasPressed('space') then
         self:OnClick()
+    end
+end
+
+function Textbox:Enter() end
+
+function Textbox:Exit()
+    if self.mDoClickCallback then
+        self.mSelectionMenu:OnClick()
     end
 end
 

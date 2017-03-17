@@ -35,7 +35,7 @@ function StateStack:Render()
     end
 end
 
-function StateStack:AddFixed(x, y, width, height, text, params)
+function StateStack:PushFix(x, y, width, height, text, params)
     params = params or {}
     local avatar = params.avatar
     local title = params.title
@@ -143,13 +143,14 @@ function StateStack:AddFixed(x, y, width, height, text, params)
         },
         children = children,
         wrap = wrap,
-        selectionMenu = selectionMenu
+        selectionMenu = selectionMenu,
+        stack = self
     }
 
     table.insert(self.mStates, textbox)
 end
 
-function StateStack:AddFitted(x, y, text, wrap, params)
+function StateStack:PushFit(x, y, text, wrap, params)
     local params = params or {}
     local choices = params.choices
     local title = params.title
@@ -188,7 +189,7 @@ function StateStack:AddFitted(x, y, text, wrap, params)
         height = math.max(height, avatarHeight + padding)
     end
 
-    return self:AddFixed(x, y, width, height, text, params)
+    return self:PushFix(x, y, width, height, text, params)
 end
 
 function StateStack:Push(state)

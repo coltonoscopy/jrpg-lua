@@ -43,6 +43,7 @@ function love.load()
 
     state = ExploreState:Create(nil, mapDef, Vector:Create(11, 3, 1))
     stack:Push(state)
+    stack:PushFit(0, 0, "You're trapped in a small room.")
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
         fullscreen = false,
