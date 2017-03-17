@@ -97,6 +97,7 @@ function MoveState:Update(dt)
     local y = self.mPixelY + (value * self.mMoveY)
     self.mEntity.mX = x
     self.mEntity.mY = y
+    self.mEntity.mSprite:SetPosition(x, y)
 
     if self.mTween:IsFinished() then
         self.mController:Change(self.mCharacter.mDefaultState)

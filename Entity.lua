@@ -5,6 +5,7 @@ Entity.__index = Entity
 
 function Entity:Create(def)
     local this = {
+        mSprite = Sprite:Create(),
         mX = 0,
         mY = 0,
         mFrame = nil,
@@ -17,6 +18,7 @@ function Entity:Create(def)
         mStartFrame = def.startFrame
     }
 
+    this.mSprite:SetTexture(love.graphics.newImage(this.mTexture))
     this.mSpritesheet = LoadSpritesheet(this.mTexture, this.mWidth, this.mHeight)
     setmetatable(this, self)
     this:SetFrame(this.mStartFrame)
@@ -25,6 +27,7 @@ end
 
 function Entity:SetFrame(frame)
     self.mFrame = self.mSpritesheet[frame]
+    self.mSprite:SetQuad(self.mFrame)
 end
 
 function Entity:SetTilePos(x, y, layer, map)

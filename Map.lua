@@ -231,8 +231,8 @@ function Map:RenderLayer(layer, hero)
 end
 
 function Map:Goto(x, y)
-    self.mCamX = math.floor(x - virtualWidth / 2)
-    self.mCamY = math.floor(y - virtualHeight / 2)
+    self.mCamX = math.floor(x - virtualWidth + self.mTileWidth)
+    self.mCamY = math.floor(y - virtualHeight + self.mTileHeight)
 end
 
 function Map:GotoTile(x, y)

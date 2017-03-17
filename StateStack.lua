@@ -12,18 +12,17 @@ end
 
 function StateStack:Update(dt)
     -- update them and check input
-    for k, v in ipairs(self.mStates) do
-        v:Update(dt)
+    for k = #self.mStates, 1, -1 do
+        local v = self.mStates[k]
+        local continue = v:Update(dt)
+        if not continue then
+            break
+        end
     end
 
     local top = self.mStates[#self.mStates]
 
     if not top then
-        return
-    end
-
-    if top:IsDead() then
-        table.remove(self.mStates)
         return
     end
 
@@ -190,4 +189,20 @@ function StateStack:AddFitted(x, y, text, wrap, params)
     end
 
     return self:AddFixed(x, y, width, height, text, params)
+end
+
+function StateStack:Push(state)
+    table.insert(self.mStates, state)
+    state:Enter()
+end
+
+function StateStack:Pop()
+    local top = self.mStates[#self.mStates]
+    table.remove(self.mStates)
+    top:Exit()
+    return top
+end
+
+function StateStack:Top()
+    return self.mStates[#self.mStates]
 end

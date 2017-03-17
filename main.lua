@@ -9,28 +9,47 @@ require 'ui/Selection'
 require 'ui/Textbox'
 push = require 'push'
 
+require 'code/states/ExploreState'
+require 'code/states/WaitState'
+require 'code/states/MoveState'
+require 'code/states/NPCStandState'
+require 'code/states/PlanStrollState'
+
+require 'Character'
+require 'Entity'
+require 'EntityDefs'
+require 'small_room'
+require 'Map'
+require 'StateMachine'
 require 'StateStack'
+require 'Vector'
 
 virtualWidth = 384
 virtualHeight = 216
 
 love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 
-stack = StateStack:Create()
-
-stack:AddFitted(0, 0,      'Hello!')
-stack:AddFitted(-25, 25,   'World!')
-stack:AddFitted(-50, 50,   'Lots')
-stack:AddFitted(-75, 75,   'of')
-stack:AddFitted(-100, 100, 'boxes!')
+local stack, mapDef, state
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
+
+    stack = StateStack:Create()
+    mapDef = CreateMap1()
+    mapDef.on_wake = {}
+    mapDef.actions = {}
+    mapDef.trigger_types = {}
+    mapDef.triggers = {}
+
+    state = ExploreState:Create(nil, mapDef, Vector:Create(11, 3, 1))
+    stack:Push(state)
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
         fullscreen = false,
         resizable = true
     })
+
+    print('Game loaded!')
 end
 
 function love.keyboard.wasPressed(key)
@@ -53,6 +72,8 @@ function love.update(dt)
     stack:Update(dt)
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
+
+    require('lurker').update()
 end
 
 function love.resize(w, h)
@@ -62,6 +83,10 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
+    end
+
+    if key == 'tab' then
+        love.load()
     end
 
     love.keyboard.keysPressed[key] = true

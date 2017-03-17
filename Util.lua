@@ -18,3 +18,10 @@ function LoadSpritesheet(atlas, tilewidth, tileheight)
 
     return spritesheet
 end
+
+function Apply(list, f, iter)
+    iter = iter or pairs
+    for k, v in iter(list) do
+        f(v, k)
+    end
+end

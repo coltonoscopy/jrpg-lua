@@ -69,3 +69,7 @@ function Sprite:SetScale(x, y)
     self.mScaleX = x
     self.mScaleY = y
 end
+
+function Sprite:GetPosition()
+    return Vector:Create(self.mX, self.mY)
+end
