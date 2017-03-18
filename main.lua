@@ -12,6 +12,8 @@ push = require 'push'
 
 require 'code/states/ExploreState'
 require 'code/states/FadeState'
+require 'code/states/FrontMenuState'
+require 'code/states/InGameMenuState'
 require 'code/states/WaitState'
 require 'code/states/MoveState'
 require 'code/states/NPCStandState'
@@ -31,7 +33,7 @@ virtualHeight = 216
 
 love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 
-local stack, mapDef, state, layout
+local stack, mapDef, explore, menu, layout
 local CreateBlock = function(stack)
     return {
         Enter = function() end,
@@ -49,14 +51,17 @@ end
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
-    -- stack = StateStack:Create()
-    -- mapDef = CreateMap1()
-    -- mapDef.on_wake = {}
-    -- mapDef.actions = {}
-    -- mapDef.trigger_types = {}
-    -- mapDef.triggers = {}
-    --
-    -- state = ExploreState:Create(stack, mapDef, Vector:Create(11, 3, 1))
+    stack = StateStack:Create()
+    mapDef = CreateMap1()
+    mapDef.on_wake = {}
+    mapDef.actions = {}
+    mapDef.trigger_types = {}
+    mapDef.triggers = {}
+
+    explore = ExploreState:Create(stack, mapDef, Vector:Create(11, 3, 1))
+    menu = InGameMenuState:Create(stack)
+    stack:Push(explore)
+    stack:Push(menu)
     -- stack:Push(state)
     -- stack:Push(FadeState:Create(stack))
     -- stack:Push(CreateBlock(stack))
@@ -65,11 +70,6 @@ function love.load()
     -- stack:PushFit(0, 10, "My head hurts!")
     -- stack:Push(CreateBlock(stack))
     -- stack:PushFit(0, 20, "Uh...")
-    layout = Layout:Create()
-    layout:Contract('screen', 118, 40)
-    layout:SplitHorz('screen', 'top', 'bottom', 0.12, 2)
-    layout:SplitVert('bottom', 'left', 'party', 0.726, 2)
-    layout:SplitHorz('left', 'menu', 'gold', 0.7, 2)
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
         fullscreen = false,
@@ -96,7 +96,7 @@ function love.keyboard.wasReleased(key)
 end
 
 function love.update(dt)
-    -- stack:Update(dt)
+    stack:Update(dt)
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
 
@@ -125,6 +125,6 @@ end
 
 function love.draw()
     push:apply('start')
-    layout:DebugRender()
+    stack:Render()
     push:apply('end')
 end

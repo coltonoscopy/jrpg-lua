@@ -58,7 +58,7 @@ function Selection:Render()
         for j = 1, self.mColumns do
             if i == self.mFocusY and j == self.mFocusX
                 and self.mShowCursor then
-                    self.mCursor:SetPosition(x - cursorHalfWidth, y - self.mCursor:GetHeight() / 4)
+                    self.mCursor:SetPosition(x + cursorHalfWidth - 4, y + 3)
                     self.mCursor:Render()
             end
 
@@ -188,7 +188,6 @@ function Selection:HandleInput()
 end
 
 function Selection:RenderItem(x, y, item)
-    print(self.mTextScale)
-    love.graphics.printf(item or '--', x + virtualWidth / 2, y + virtualHeight / 2,
+    love.graphics.printf(item or '--', math.floor(x + virtualWidth / 2), math.floor(y + virtualHeight / 2),
         self:CalcWidth(), 'left', 0, self.mTextScale * self.mScale, self.mTextScale * self.mScale)
 end

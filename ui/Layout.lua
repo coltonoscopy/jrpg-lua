@@ -87,3 +87,33 @@ function Layout:SplitVert(name, lname, rname, y, splitSize)
         height = parent.height
     }
 end
+
+function Layout:Top(name)
+    local panel = self.mPanels[name]
+    return panel.y - panel.height / 2
+end
+
+function Layout:Bottom(name)
+    local panel = self.mPanels[name]
+    return panel.y + panel.height / 2
+end
+
+function Layout:Left(name)
+    local panel = self.mPanels[name]
+    return panel.x - panel.width / 2
+end
+
+function Layout:Right(name)
+    local panel = self.mPanels[name]
+    return panel.x + panel.width / 2
+end
+
+function Layout:MidX(name)
+    local panel = self.mPanels[name]
+    return panel.x
+end
+
+function Layout:MidY(name)
+    local panel = self.mPanels[name]
+    return panel.y
+end
