@@ -58,7 +58,8 @@ function Selection:Render()
         for j = 1, self.mColumns do
             if i == self.mFocusY and j == self.mFocusX
                 and self.mShowCursor then
-                    self.mCursor:SetPosition(x + cursorHalfWidth - 4, y + 3)
+                    self.mCursor:SetPosition(x + cursorHalfWidth - 4 - virtualWidth / 2,
+                        y + 3 - virtualHeight / 2)
                     self.mCursor:Render()
             end
 

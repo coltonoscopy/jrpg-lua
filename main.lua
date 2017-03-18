@@ -22,54 +22,55 @@ require 'code/states/PlanStrollState'
 require 'Character'
 require 'Entity'
 require 'EntityDefs'
+require 'ItemDB'
 require 'small_room'
 require 'Map'
 require 'StateMachine'
 require 'StateStack'
 require 'Vector'
+require 'World'
 
 virtualWidth = 384
 virtualHeight = 216
 
+gWorld = World:Create()
+
 love.graphics.setFont(love.graphics.newFont('fonts/04B_03__.TTF', 8))
 
-local stack, mapDef, explore, menu, layout
-local CreateBlock = function(stack)
-    return {
-        Enter = function() end,
-        Exit = function() end,
-        HandleInput = function(self)
-            stack:Pop()
-        end,
-        Render = function() end,
-        Update = function(self)
-            return false
+local itemList = Selection:Create {
+    data = gWorld.mItems,
+    spacingY = 32,
+    rows = 5,
+    RenderItem = function(menu, x, y, item)
+        if item then
+            local itemDef = ItemDB[item.id]
+            local label = string.format('%s (%d)',
+                                        itemDef.name,
+                                        item.count)
+            love.graphics.print(label, x, y)
+        else
+            love.graphics.print('--', x, y)
         end
-    }
-end
+    end
+}
+
+local keyItemList = Selection:Create {
+    data = gWorld.mKeyItems,
+    spacingY = 32,
+    rows = 5,
+    RenderItem = function(menu, x, y, item)
+        if item then
+            local itemDef = ItemDB[item.id]
+            love.graphics.print(itemDef.name, x, y)
+        else
+            love.graphics.print('--', x, y)
+        end
+    end
+}
+keyItemList:HideCursor()
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
-
-    stack = StateStack:Create()
-    mapDef = CreateMap1()
-    mapDef.on_wake = {}
-    mapDef.actions = {}
-    mapDef.trigger_types = {}
-    mapDef.triggers = {}
-
-    explore = ExploreState:Create(stack, mapDef, Vector:Create(11, 3, 1))
-    menu = InGameMenuState:Create(stack)
-    stack:Push(explore)
-    stack:Push(menu)
-    -- stack:Push(state)
-    -- stack:Push(FadeState:Create(stack))
-    -- stack:Push(CreateBlock(stack))
-    -- stack:PushFit(0, 0, "Where am I?")
-    -- stack:Push(CreateBlock(stack))
-    -- stack:PushFit(0, 10, "My head hurts!")
-    -- stack:Push(CreateBlock(stack))
-    -- stack:PushFit(0, 20, "Uh...")
 
     push:setupScreen(virtualWidth, virtualHeight, 1280, 720, {
         fullscreen = false,
@@ -96,11 +97,10 @@ function love.keyboard.wasReleased(key)
 end
 
 function love.update(dt)
-    stack:Update(dt)
+    gWorld:Update(dt)
+    itemList:HandleInput()
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
-
-    require('lurker').update()
 end
 
 function love.resize(w, h)
@@ -116,6 +116,33 @@ function love.keypressed(key)
         love.load()
     end
 
+    if key == 'a' then
+        gWorld:AddItem(1)
+    end
+
+    if key == 'r' then
+        local item = itemList:SelectedItem()
+        if item then
+            gWorld:RemoveItem(item.id)
+        end
+    end
+
+    if key == 'k' then
+        if not gWorld:HasKey(4) then
+            gWorld:AddKey(4)
+        end
+    end
+
+    if key == 'u' then
+        if gWorld:HasKey(4) then
+            gWorld:RemoveKey(4)
+        end
+    end
+
+    if key == 'g' then
+        gWorld.mGold = gWorld.mGold + math.random(100)
+    end
+
     love.keyboard.keysPressed[key] = true
 end
 
@@ -125,6 +152,27 @@ end
 
 function love.draw()
     push:apply('start')
-    stack:Render()
+    local x = 30
+    local y = 50
+    love.graphics.printf('ITEMS', x, y - 32,
+        itemList:GetWidth() * 1.5, 'center', 0, 1, 1)
+    itemList:SetPosition(x, y)
+    itemList:Render()
+
+    x = virtualWidth - 150
+
+    love.graphics.printf('KEY ITEMS', x, math.floor(y - 32),
+        itemList:GetWidth() * 1.5, 'center', 0, 1, 1)
+    keyItemList:SetPosition(x, y)
+    keyItemList:Render()
+
+    local timeText = string.format('TIME:%s', gWorld:TimeAsString())
+    local goldText = string.format('GOLD:%s', gWorld:GoldAsString())
+    love.graphics.printf(timeText, 0, 10, virtualWidth, 'center', 0, 1, 1)
+    love.graphics.printf(goldText, 0, 20, virtualWidth, 'center', 0, 1, 1)
+
+    local tip = 'A - Add Item, R - Remove Item, ' ..
+                'K - Add Key, U - Use Key, G - Add Gold'
+    love.graphics.printf(tip, 0, virtualHeight - 20, virtualWidth, 'center', 0, 1, 1)
     push:apply('end')
 end

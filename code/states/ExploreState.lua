@@ -66,4 +66,9 @@ function ExploreState:HandleInput()
             trigger:OnUse(self.mHero)
         end
     end
+
+    if love.keyboard.wasPressed('lalt') then
+        local menu = InGameMenuState:Create(self.mStack)
+        return self.mStack:Push(menu)
+    end
 end
